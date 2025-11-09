@@ -1,0 +1,60 @@
+/* App Global Styles */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Global button reset */
+button {
+  font-family: inherit;
+}
+
+/* Global focus styles */
+*:focus {
+  outline: 2px solid #ffce55;
+  outline-offset: 2px;
+}
+
+/* Hide focus outline for mouse users */
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffce55;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffb400;
+}
+
+/* Print styles */
+@media print {
+  .app {
+    min-height: auto;
+  }
+  
+  nav, footer {
+    display: none;
+  }
+}
