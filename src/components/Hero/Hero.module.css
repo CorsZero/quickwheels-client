@@ -26,7 +26,7 @@
   font-weight: 900;
   margin-bottom: 3rem;
   line-height: 1;
-  color: #333;
+  color: #333333;
   letter-spacing: -0.02em;
 }
 
@@ -83,7 +83,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   margin-top: 2rem;
 }
@@ -91,20 +91,21 @@
 .categoryChip {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
-  color: #333;
-  padding: 0.75rem 1.5rem;
+  gap: auto;
+  background: #FFD28F;
+  border: 2px solid #fdc879;
+  color: #915702;
+  padding: 0.5rem 1.75rem;
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
   font-size: 0.95rem;
+  margin-top: -20px;
 }
 
 .categoryChip:hover {
-  background: #fff;
+  background: #ffdca8;
   border-color: #ffce55;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -132,6 +133,7 @@
   background: #f8f9fa;
   border: 2px solid #e9ecef;
   border-radius: 50%;
+ 
   font-size: 1.5rem;
   color: #666;
   animation: bounce 2s infinite;
@@ -140,10 +142,17 @@
 }
 
 .arrowIcon:hover {
-  background: #333;
-  border-color: #333;
+  background: #ffd79c;
+  border-color: #fdc879;
   color: white;
   transform: translateY(-2px);
+}
+
+.arrowIcon img {
+  margin-top: 2px;
+  width: 20px;
+  height: 20px;
+opacity: 0.3;
 }
 
 @keyframes bounce {

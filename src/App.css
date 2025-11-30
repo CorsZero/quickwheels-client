@@ -17,16 +17,7 @@
   background: #ffb400;
 }
 
-/* Print styles */
-@media print {
-  .app {
-    min-height: auto;
-  }
-  
-  nav, footer {
-    display: none;
-  }
-}
+
 
 
 @font-face {
