@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { useAds } from '../../contexts/AdsContext';
 import styles from './Hero.module.css';
 import searchIcon from '../../assets/images/iconsax-search.svg';
+import arrowIcon from '../../assets/images/arrow-down.svg';
 
 const categories = ['All', 'Cars', 'Scooters', 'Motor Bicycle', 'Vans', 'Large Vehicles'];
 
@@ -77,7 +78,9 @@ const Hero = () => {
 
           {/* Down Arrow */}
           <div className={styles.downArrow}>
-            <div className={styles.arrowIcon}>↓</div>
+            <div className={styles.arrowIcon}>
+              <img src={arrowIcon} alt="Down Arrow" />
+            </div>
           </div>
         </div>
       </div>

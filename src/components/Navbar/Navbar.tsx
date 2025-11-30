@@ -1,17 +1,6 @@
-/**
- * Quick Wheel Vehicle Rental App Component
- * Component: Navbar
- * Description: Navigation bar with logo, menu links, and user authentication controls
- * Tech: React + TypeScript + CSS Modules
- * Behavior:
- * - Shows logo on the left
- * - Center navigation links (Home, Ads, Create Ads)
- * - Right side shows Login button or user profile dropdown
- * - Mobile responsive with hamburger menu
- */
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './Navbar.module.css';
 import QuickWheelLogo from '../../assets/images/quickWheelLogo.svg';
@@ -21,6 +10,7 @@ const Navbar = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { user, logout, isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
@@ -52,14 +42,23 @@ const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <div className={styles.navLinks}>
-          <Link to="/" className={styles.navLink}>
+          <Link 
+            to="/" 
+            className={`${styles.navLink} ${location.pathname === '/' ? styles.active : ''}`}
+          >
             Home
           </Link>
-          <Link to="/ads" className={styles.navLink}>
+          <Link 
+            to="/ads" 
+            className={`${styles.navLink} ${location.pathname === '/ads' ? styles.active : ''}`}
+          >
             Ads
           </Link>
           {isLoggedIn && (
-            <Link to="/create-ad" className={styles.navLink}>
+            <Link 
+              to="/create-ad" 
+              className={`${styles.navLink} ${location.pathname === '/create-ad' ? styles.active : ''}`}
+            >
               Create Ad
             </Link>
           )}
@@ -123,14 +122,26 @@ const Navbar = () => {
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
         <div className={styles.mobileMenu}>
-          <Link to="/" className={styles.mobileNavLink} onClick={closeMenus}>
+          <Link 
+            to="/" 
+            className={`${styles.mobileNavLink} ${location.pathname === '/' ? styles.active : ''}`}
+            onClick={closeMenus}
+          >
             Home
           </Link>
-          <Link to="/ads" className={styles.mobileNavLink} onClick={closeMenus}>
+          <Link 
+            to="/ads" 
+            className={`${styles.mobileNavLink} ${location.pathname === '/ads' ? styles.active : ''}`}
+            onClick={closeMenus}
+          >
             Ads
           </Link>
           {isLoggedIn && (
-            <Link to="/create-ad" className={styles.mobileNavLink} onClick={closeMenus}>
+            <Link 
+              to="/create-ad" 
+              className={`${styles.mobileNavLink} ${location.pathname === '/create-ad' ? styles.active : ''}`}
+              onClick={closeMenus}
+            >
               Create Ad
             </Link>
           )}
