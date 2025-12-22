@@ -1,38 +1,65 @@
-/* Hero CSS Module */
+/* Hero CSS Module - Industrial Level Responsive Design */
+
+/* ============================================
+   CSS Custom Properties (Design Tokens)
+   ============================================ */
+:root {
+  /* Breakpoint reference (for documentation):
+     --bp-xs: 320px   (Small phones)
+     --bp-sm: 480px   (Large phones)
+     --bp-md: 768px   (Tablets)
+     --bp-lg: 1024px  (Small laptops)
+     --bp-xl: 1280px  (Desktops)
+     --bp-2xl: 1536px (Large screens)
+  */
+}
+
+
 .hero {
   background: white;
   color: #333;
-  padding: 6rem 0;
-  min-height: 70vh;
+  /* Fluid padding: min 2rem, preferred 5vw, max 6rem */
+  padding: clamp(2rem, 5vw, 6rem) 0;
+  min-height: clamp(50vh, 60vh, 70vh);
   display: flex;
   align-items: center;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .container {
-  max-width: 1200px;
+  --container-max: 1200px;
+  --container-gutter: clamp(1rem, 4vw, 2rem);
+  max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 var(--container-gutter);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .content {
   text-align: center;
-  max-width: 800px;
+  max-width: min(800px, 100%);
   margin: 0 auto;
+  width: 100%;
 }
 
 .title {
-  font-size: 4rem;
+  /* Fluid typography: min 1.75rem, preferred 6vw, max 4rem */
+  font-size: clamp(1.75rem, 6vw, 4rem);
   font-weight: 900;
-  margin-bottom: 3rem;
+  /* Fluid spacing */
+  margin-bottom: clamp(1.5rem, 4vw, 3rem);
   line-height: 1;
   color: #333333;
   letter-spacing: -0.02em;
+  word-break: break-word;
+  hyphens: auto;
 }
 
-/* Search Section */
 .searchSection {
-  margin-bottom: 3rem;
+  margin-bottom: clamp(0.25rem, 0.75vw, 0.5rem);
+  width: 100%;
 }
 
 .searchBar {
@@ -40,75 +67,141 @@
   background: white;
   border: 2px solid #e1e5e9;
   border-radius: 50px;
-  padding: 0.3rem;
-  max-width: 1200px;
+  padding: clamp(0.2rem, 0.5vw, 0.3rem);
+  width: 100%;
   margin: 0 auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   align-items: center;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.searchBar:focus-within {
+  border-color: #fdc879;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.12);
 }
 
 .searchIcon {
-  width: 50px;
-  height: 50px;
-  margin-left: 0rem;
-  margin-right: 0.5rem;
+  /* Fluid icon size */
+  --icon-size: clamp(40px, 8vw, 50px);
+  
+  width: var(--icon-size);
+  height: var(--icon-size);
+  min-width: var(--icon-size);
+  flex-shrink: 0;
+  margin-left: 0;
+  margin-right: clamp(0.25rem, 1vw, 0.5rem);
   background-color: black;
   border-radius: 50%;
-  padding: 10px;
+  padding: clamp(8px, 1.5vw, 10px);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .searchInput {
   flex: 1;
+  min-width: 0; /* Prevents flex item from overflowing */
   border: none;
   outline: none;
-  padding: 1rem 0.5rem;
-  font-size: 1rem;
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(0.25rem, 1vw, 0.5rem);
+  /* Fluid font size */
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
   color: #333;
   background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .searchInput::placeholder {
   color: #999;
 }
 
-/* Categories Section */
+/* Remove default iOS input styling */
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ============================================
+   Categories Section Container (includes search + categories)
+   ============================================ */
+.categoriesSectionContainer {
+  margin-top: 0px;
+  width: 100%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .categoriesSection {
-  margin-bottom: 4rem;
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.categoriesSection::-webkit-scrollbar {
+  display: none;
 }
 
 .categoryChips {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: clamp(0.125rem, 0.5vw, 0.25rem);
   justify-content: space-between;
   align-items: center;
-  margin-top: 2rem;
+  margin-top: clamp(1rem, 3vw, 2rem);
+  padding: 0;
+  width: 100%;
 }
 
 .categoryChip {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: auto;
+  justify-content: center;
+  white-space: nowrap;
   background: #FFD28F;
   border: 2px solid #fdc879;
   color: #915702;
-  padding: 0.5rem 1.75rem;
+  /* Fluid padding */
+  padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.875rem, 3vw, 1.75rem);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
-  font-size: 0.95rem;
-  margin-top: -20px;
+  /* Fluid font size */
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+  /* Minimum touch target for accessibility (44px recommended) */
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
-.categoryChip:hover {
-  background: #ffdca8;
-  border-color: #ffce55;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+/* Hover states - only apply on devices that support hover */
+@media (hover: hover) and (pointer: fine) {
+  .categoryChip:hover {
+    background: #ffdca8;
+    border-color: #ffce55;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Active/Focus states for touch and keyboard */
+.categoryChip:active {
+  transform: scale(0.98);
+}
+
+.categoryChip:focus-visible {
+  outline: 2px solid #333;
+  outline-offset: 2px;
 }
 
 .categoryChip.active {
@@ -119,40 +212,53 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Down Arrow */
+/* ============================================
+   Down Arrow
+   ============================================ */
 .downArrow {
-  margin-top: 3rem;
+  margin-top: clamp(1.5rem, 4vw, 3rem);
 }
 
 .arrowIcon {
+  --arrow-size: clamp(35px, 7vw, 50px);
+  
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
+  width: var(--arrow-size);
+  height: var(--arrow-size);
   background: #f8f9fa;
   border: 2px solid #e9ecef;
   border-radius: 50%;
- 
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 2vw, 1.5rem);
   color: #666;
   animation: bounce 2s infinite;
   cursor: pointer;
   transition: all 0.3s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.arrowIcon:hover {
-  background: #ffd79c;
-  border-color: #fdc879;
-  color: white;
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .arrowIcon:hover {
+    background: #ffd79c;
+    border-color: #fdc879;
+    color: white;
+    transform: translateY(-2px);
+    animation-play-state: paused;
+  }
+}
+
+.arrowIcon:active {
+  transform: scale(0.95);
+  animation-play-state: paused;
 }
 
 .arrowIcon img {
   margin-top: 2px;
-  width: 20px;
-  height: 20px;
-opacity: 0.3;
+  width: clamp(14px, 3vw, 20px);
+  height: clamp(14px, 3vw, 20px);
+  opacity: 0.3;
 }
 
 @keyframes bounce {
@@ -167,77 +273,201 @@ opacity: 0.3;
   }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* ============================================
+   Responsive Breakpoints
+   ============================================ */
+
+/* Extra Small Devices (320px - 479px) - Small phones */
+@media screen and (max-width: 479px) {
   .hero {
-    padding: 4rem 0;
-    min-height: 60vh;
+    min-height: auto;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 
-  .title {
-    font-size: 2.5rem;
+  .container {
+    --container-gutter: 0.75rem;
   }
 
   .searchBar {
-    flex-direction: column;
-    gap: 0.5rem;
-    border-radius: 20px;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
+    border-radius: 25px;
+    padding: 0.25rem;
   }
 
-  .searchInput {
-    padding: 1rem;
-    text-align: center;
-    border-radius: 15px;
-    background: #f8f9fa;
+  .searchIcon {
+    --icon-size: 36px;
+    margin-right: 0.25rem;
   }
 
   .categoryChips {
-    gap: 0.75rem;
+    justify-content: center;
+    gap: 0.5rem;
   }
 
   .categoryChip {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-  }
-
-  .arrowIcon {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
+    flex: 0 0 auto;
+    padding: 0.4rem 0.875rem;
+    font-size: 0.8rem;
+    min-height: 40px;
   }
 }
 
-@media (max-width: 480px) {
-  .hero {
-    padding: 3rem 0;
-  }
-
-  .title {
-    font-size: 2rem;
+/* Small Devices (480px - 767px) - Large phones */
+@media screen and (min-width: 480px) and (max-width: 767px) {
+  .container {
+    --container-gutter: 1rem;
   }
 
   .categoryChips {
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.625rem;
   }
 
   .categoryChip {
     padding: 0.5rem 1rem;
     font-size: 0.85rem;
   }
+}
 
-  .searchIcon {
-    display: none;
+/* Medium Devices (768px - 1023px) - Tablets */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    --container-gutter: 1.5rem;
   }
 
+  .categoryChips {
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .categoryChip {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Large Devices (1024px - 1279px) - Small laptops */
+@media screen and (min-width: 1024px) and (max-width: 1279px) {
   .container {
-    padding: 0 0.75rem;
+    --container-gutter: 2rem;
+  }
+
+  .categoryChips {
+    justify-content: space-between;
+    gap: 0.875rem;
+  }
+}
+
+/* Extra Large Devices (1280px+) - Desktops */
+@media screen and (min-width: 1280px) {
+  .container {
+    --container-gutter: 2rem;
+  }
+
+  .categoryChips {
+    justify-content: space-between;
+    gap: 1rem;
+  }
+}
+
+/* Ultra Wide Screens (1536px+) */
+@media screen and (min-width: 1536px) {
+  .container {
+    --container-max: 1400px;
+  }
+}
+
+/* ============================================
+   Orientation Handling
+   ============================================ */
+
+/* Landscape mode on mobile devices */
+@media screen and (max-width: 896px) and (orientation: landscape) {
+  .hero {
+    min-height: auto;
+    padding: 1.5rem 0;
+  }
+
+  .title {
+    margin-bottom: 1rem;
+  }
+
+  .searchSection {
+    margin-bottom: 1rem;
+  }
+
+  .categoriesSection {
+    margin-bottom: 1rem;
+  }
+
+  .downArrow {
+    margin-top: 1rem;
+  }
+}
+
+/* ============================================
+   Touch Device Optimizations
+   ============================================ */
+@media (pointer: coarse) {
+  .categoryChip {
+    min-height: 44px;
+    min-width: 44px;
   }
 
   .arrowIcon {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .searchInput {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* ============================================
+   High DPI / Retina Displays
+   ============================================ */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .searchBar {
+    border-width: 1px;
+  }
+
+  .categoryChip {
+    border-width: 1.5px;
+  }
+}
+
+/* ============================================
+   Reduced Motion Preference
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .categoryChip,
+  .arrowIcon,
+  .searchBar {
+    transition: none;
+  }
+
+  .arrowIcon {
+    animation: none;
+  }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+@media print {
+  .hero {
+    min-height: auto;
+    padding: 1rem 0;
+  }
+
+  .downArrow {
+    display: none;
+  }
+
+  .categoryChip {
+    border: 1px solid #333;
+    background: white;
+    color: #333;
   }
 }
