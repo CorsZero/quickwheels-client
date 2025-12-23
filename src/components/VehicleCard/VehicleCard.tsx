@@ -50,7 +50,8 @@ const VehicleCard = ({ vehicle, onClick }: VehicleCardProps) => {
         </div>
 
         <div className={styles.rentalRow}>
-          <span className={styles.label}>Rental amount :</span>
+          <span className={styles.label}>Price per day :</span>
+           <span className={styles.priceNumber}>LKR</span>
           <span className={styles.priceNumber}>{formatNumber(vehicle.rentalAmount)}</span>
         </div>
 
@@ -76,7 +77,10 @@ const VehicleCard = ({ vehicle, onClick }: VehicleCardProps) => {
 
           <div className={styles.infoCol}>
             <div className={styles.location}>
-              <span className={styles.locationIcon}>📍</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
               <span className={styles.locationText}>{vehicle.location}</span>
             </div>
             <div className={styles.delivery}>
