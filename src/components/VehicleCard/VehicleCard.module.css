@@ -1,294 +1,183 @@
-npm run dev
-/* VehicleCard CSS Module */
+/* VehicleCard — redesigned to match provided reference (image left, details right) */
+
 .card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 22px rgba(16, 24, 40, 0.07);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
-  height: 100%;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  width: 100%;
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
+  gap: 0;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.card:active,
+.card:focus {
+  transform: translateY(-2px);
 }
 
-/* Image Section */
+/* Left Image */
 .imageContainer {
-  position: relative;
-  width: clamp(150px, 35%, 250px);
-  height: auto;
-  min-height: 200px;
-  overflow: hidden;
+  width: clamp(240px, 45%, 460px);
+  min-width: 180px;
+  height: 220px;
   flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eee;
+  position: relative;
 }
 
 .image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform 0.3s ease;
 }
 
 .card:hover .image {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
-.categoryBadge {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-  backdrop-filter: blur(10px);
-}
 
-.categoryIcon {
-  font-size: 0.9rem;
-}
 
-.categoryText {
-  font-weight: 500;
-}
-
-.unavailableBadge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #f44336;
-  color: white;
-  padding: 0.3rem 0.6rem;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-/* Details Section */
+/* Right details */
 .details {
-  padding: clamp(0.8rem, 2vw, 1.2rem);
+  padding: 22px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.4rem, 1vw, 0.6rem);
+  justify-content: center;
+}
+
+/* Title + Category pill (top right) */
+.titleRow {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  width: 100%;
 }
 
 .title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
   margin: 0;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111;
 }
 
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.manufacturer {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.categoryPill {
+  background: #111;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
   font-size: 0.9rem;
+  white-space: nowrap;
 }
 
-.label {
-  color: #666;
-  font-weight: 500;
-}
-
-.value {
-  color: #333;
-  font-weight: 600;
-}
-
-.location {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: #666;
-}
-
-.locationIcon {
-  font-size: 0.9rem;
-}
-
-.locationText {
-  font-weight: 500;
-}
-
-/* Pricing */
-.pricing {
+/* Rental line */
+.rentalRow {
+  margin-top: 10px;
   display: flex;
   align-items: baseline;
-  gap: 0.3rem;
-  margin: 0.5rem 0;
+  justify-content: flex-start;
+  gap: 10px;
+} 
+
+.label {
+  color: #3b3b3b;
+  font-weight: 600;
 }
 
-.price {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #ffb400;
-}
-
-.period {
-  font-size: 0.85rem;
-  color: #666;
-  font-weight: 500;
+.priceNumber {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #111;
 }
 
 /* Availability */
 .availability {
-  margin: 0.2rem 0;
-}
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-start;
+} 
 
 .available {
-  color: #4caf50;
-  font-weight: 600;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+  color: #2e8b2e;
+  font-weight: 700;
 }
 
 .notAvailable {
-  color: #f44336;
-  font-weight: 600;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+  color: #c62828;
+  font-weight: 700;
 }
 
-/* Seller */
+/* Extra small details */
+.extraInfo {
+  margin-top: 12px;
+  display: flex;
+  gap: 18px;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+} 
+
+.extraInfo > div {
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
+.value {
+  color: #111;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+/* Footer / seller */
 .seller {
+  margin-top: 12px;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: #666;
-  margin-top: auto;
-  padding-top: 0.5rem;
-  border-top: 1px solid #f0f0f0;
-}
+  justify-content: flex-start;
+  color: #6b7280;
+  font-size: 0.88rem;
+} 
 
-.sellerIcon {
-  font-size: 0.9rem;
-}
-
-.sellerName {
-  font-weight: 500;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
+/* Responsive: stack on small screens */
+@media (max-width: 560px) {
   .card {
-    flex-direction: row;
+    flex-direction: column;
+    border-radius: 12px;
   }
 
   .imageContainer {
-    width: clamp(120px, 30%, 180px);
-    min-height: 160px;
+    width: 100%;
+    height: 180px;
+    border-radius: 12px 12px 0 0;
   }
 
   .details {
-    padding: 0.8rem 1rem;
-    gap: 0.4rem;
+    padding: 16px;
+    text-align: left;
   }
 
-  .title {
-    font-size: 0.95rem;
+  .titleRow {
+    justify-content: space-between;
   }
 
-  .price {
-    font-size: 1.1rem;
-  }
-
-  .categoryBadge {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.65rem;
-  }
-
-  .unavailableBadge {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.65rem;
-  }
-
-  .info {
-    gap: 0.25rem;
-  }
-
-  .manufacturer,
-  .location {
-    font-size: 0.8rem;
-  }
-
+  .rentalRow,
+  .availability,
+  .extraInfo,
   .seller {
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .card {
-    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
   }
 
-  .imageContainer {
-    width: clamp(100px, 28%, 140px);
-    min-height: 140px;
-  }
-
-  .details {
-    padding: 0.6rem 0.8rem;
-    gap: 0.25rem;
-  }
-
-  .title {
-    font-size: 0.85rem;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-  }
-
-  .price {
-    font-size: 1rem;
-  }
-
-  .info {
-    gap: 0.2rem;
-    display: none;
-  }
-
-  .manufacturer,
-  .location {
-    font-size: 0.75rem;
-  }
-
-  .categoryBadge {
-    padding: 0.2rem 0.4rem;
-    font-size: 0.6rem;
-  }
-
-  .seller {
-    font-size: 0.7rem;
-    padding-top: 0.3rem;
+  .categoryPill {
+    order: 2;
   }
 }

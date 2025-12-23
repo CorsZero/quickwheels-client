@@ -1,273 +1,225 @@
-/**
- * Quick Wheel Vehicle Rental App Component
- * Component: VehicleDetails
- * Description: Displays detailed vehicle information with booking functionality
- * Tech: React + TypeScript + CSS Modules
- * Behavior:
- * - Shows vehicle images in a carousel
- * - Displays title, price, status, delivery details, manufacturer info
- * - Duration selector for booking
- * - Book button (disabled for seller or unavailable vehicles)
- */
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { bookVehicle } from '../../services/api';
 import type { Vehicle } from '../../services/api';
 import styles from './VehicleDetails.module.css';
+import img1 from '../../assets/testAssets/344x258.jpg';
+import img2 from '../../assets/testAssets/344x258.jpg';
+import img3 from '../../assets/testAssets/344x258.jpg';
+import img5 from '../../assets/testAssets/img2.jpg';
+import img6 from '../../assets/testAssets/img3.jpg';
+import img7 from '../../assets/testAssets/img4.jpg';
+import img8 from '../../assets/testAssets/344x258.jpg';
 
 interface VehicleDetailsProps {
   vehicle: Vehicle;
 }
 
+// Recreated Vehicle Details to match the provided mock 1:1
 const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [duration, setDuration] = useState(1);
-  const [startDate, setStartDate] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
-  const [error, setError] = useState('');
-  
   const { user, isLoggedIn } = useAuth();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [duration, setDuration] = useState(5);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [thumbPage, setThumbPage] = useState(0);
 
-  const totalPrice = vehicle.rentalAmount * duration;
   const isOwner = user?.id === vehicle.sellerId;
-  const canBook = isLoggedIn && !isOwner && vehicle.available && startDate;
+  const canBook = isLoggedIn && !isOwner && vehicle.available && !loading;
 
-  const handlePrevImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? vehicle.images.length - 1 : prev - 1
-    );
+  // 4 Mercedes images as requested
+  const sampleImages = [
+    img1,
+    img2,
+    img3,
+    img8,
+    img5,
+    img6,
+    img7,
+    img8,
+  ];
+
+ 
+
+  const hasImages = sampleImages.length > 0;
+  const hasMultiple = sampleImages.length > 1;
+  const THUMBS_PER_PAGE = 4;
+  const totalPages = Math.ceil(sampleImages.length / THUMBS_PER_PAGE);
+  const startIdx = thumbPage * THUMBS_PER_PAGE;
+  const endIdx = startIdx + THUMBS_PER_PAGE;
+  const visibleThumbs = sampleImages.map((s, i) => ({ src: s, idx: i })).slice(startIdx, endIdx);
+
+  // Mock vehicle data for local testing when a real `vehicle` prop isn't provided
+  const MOCK_VEHICLE: Partial<Vehicle> = {
+    id: 'mock-1',
+    title: 'Vehicle Name',
+    rentalAmount: 2500,
+    available: true,
+    location: 'Matara - Waligama',
+    manufacturer: 'Mercedes',
+    year: 2021,
+    description: 'Sample vehicle used for local UI testing.',
+    deliveryDetails: 'Deliver to specific area or Self Pick up',
+    sellerId: 'mock-seller',
+    images: sampleImages,
   };
 
-  const handleNextImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === vehicle.images.length - 1 ? 0 : prev + 1
-    );
+  const displayVehicle: Vehicle = ({ ...MOCK_VEHICLE, ...(vehicle || {}), images: sampleImages } as unknown) as Vehicle;
+
+  const formattedPrice = `LKR $${Number(displayVehicle.rentalAmount || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+  const goPrev = () => {
+    setCurrentImageIndex((i) => (i === 0 ? sampleImages.length - 1 : i - 1));
+  };
+  const goNext = () => {
+    setCurrentImageIndex((i) => (i === sampleImages.length - 1 ? 0 : i + 1));
+  };
+
+  const goThumbPrev = () => {
+    if (thumbPage > 0) setThumbPage(thumbPage - 1);
+  };
+  const goThumbNext = () => {
+    if (thumbPage < totalPages - 1) setThumbPage(thumbPage + 1);
   };
 
   const handleBook = async () => {
     if (!canBook) return;
-
-    setLoading(true);
-    setError('');
-
     try {
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + duration);
-      
-      await bookVehicle(vehicle.id, startDate, endDate.toISOString().split('T')[0]);
-      setBookingSuccess(true);
-    } catch (err) {
-      setError('Booking failed. Please try again.');
+      setLoading(true);
+      setMessage('');
+      const start = new Date();
+      const end = new Date(start);
+      end.setDate(end.getDate() + Number(duration || 1));
+      const startStr = start.toISOString().split('T')[0];
+      const endStr = end.toISOString().split('T')[0];
+      await bookVehicle(displayVehicle.id || vehicle.id, startStr, endStr);
+      setMessage('Booked successfully. Check your profile for details.');
+    } catch (e) {
+      setMessage('Booking failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const getMinDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
-  if (bookingSuccess) {
-    return (
-      <div className={styles.success}>
-        <div className={styles.successIcon}>✅</div>
-        <h2 className={styles.successTitle}>Booking Successful!</h2>
-        <p className={styles.successMessage}>
-          Your booking for {vehicle.title} has been confirmed.
-          Check your profile for booking details.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.vehicleDetails}>
-      {/* Image Carousel */}
-      <div className={styles.imageSection}>
-        <div className={styles.carousel}>
-          <div className={styles.imageContainer}>
-            <img
-              src={vehicle.images[currentImageIndex]}
-              alt={`${vehicle.title} - Image ${currentImageIndex + 1}`}
-              className={styles.mainImage}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop';
-              }}
-            />
-            
-            {vehicle.images.length > 1 && (
-              <>
-                <button
-                  className={`${styles.carouselButton} ${styles.prevButton}`}
-                  onClick={handlePrevImage}
-                  aria-label="Previous image"
-                >
-                  ←
-                </button>
-                <button
-                  className={`${styles.carouselButton} ${styles.nextButton}`}
-                  onClick={handleNextImage}
-                  aria-label="Next image"
-                >
-                  →
-                </button>
-              </>
-            )}
-          </div>
-          
-          {vehicle.images.length > 1 && (
-            <div className={styles.thumbnails}>
-              {vehicle.images.map((image, index) => (
-                <button
-                  key={index}
-                  className={`${styles.thumbnail} ${
-                    index === currentImageIndex ? styles.active : ''
-                  }`}
-                  onClick={() => setCurrentImageIndex(index)}
-                >
-                  <img src={image} alt={`Thumbnail ${index + 1}`} />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+    <div className={styles.wrap}>
+      <div className={styles.card}>
+        <h2 className={styles.title}>{displayVehicle.title || 'Vehicle Name'}</h2>
 
-      {/* Details Section */}
-      <div className={styles.detailsSection}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>{vehicle.title}</h1>
-          <div className={styles.status}>
-            {vehicle.available ? (
-              <span className={styles.available}>✓ Available</span>
-            ) : (
-              <span className={styles.unavailable}>✗ Not Available</span>
-            )}
-          </div>
+        <div className={styles.mainImageBox}>
+          <img
+            src={sampleImages[currentImageIndex]}
+            alt={`${vehicle.title || 'Vehicle'} image ${currentImageIndex + 1}`}
+          />
         </div>
 
-        <div className={styles.price}>
-          <span className={styles.amount}>LKR {vehicle.rentalAmount.toLocaleString()}</span>
-          <span className={styles.period}>/ day</span>
+        <div className={styles.thumbRow}>
+          <button
+            className={`${styles.navBtn} ${styles.left} ${thumbPage === 0 ? styles.disabled : ''}`}
+            onClick={goThumbPrev}
+            disabled={thumbPage === 0}
+            aria-label="Previous thumbnails"
+          >
+            ‹
+          </button>
+          <div className={styles.thumbs}>
+            {hasImages
+              ? visibleThumbs.map(({ src, idx }) => (
+                  <button
+                    key={idx}
+                    className={`${styles.thumb} ${idx === currentImageIndex ? styles.active : ''}`}
+                    onClick={() => setCurrentImageIndex(idx)}
+                    aria-label={`Image ${idx + 1}`}
+                  >
+                    <img
+                      src={src}
+                      alt={`Thumb ${idx + 1}`}
+                    />
+                  </button>
+                ))
+              : Array.from({ length: THUMBS_PER_PAGE }).map((_, idx) => (
+                  <div key={idx} className={styles.ghostThumb}></div>
+                ))}
+          </div>
+          <button
+            className={`${styles.navBtn} ${styles.right} ${thumbPage >= totalPages - 1 ? styles.disabled : ''}`}
+            onClick={goThumbNext}
+            disabled={thumbPage >= totalPages - 1}
+            aria-label="Next thumbnails"
+          >
+            ›
+          </button>
         </div>
 
-        <div className={styles.info}>
-          <div className={styles.infoItem}>
-            <span className={styles.label}>Category:</span>
-            <span className={styles.value}>{vehicle.category}</span>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.label}>Manufacturer:</span>
-            <span className={styles.value}>{vehicle.manufacturer}</span>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.label}>Model:</span>
-            <span className={styles.value}>{vehicle.model}</span>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.label}>Year:</span>
-            <span className={styles.value}>{vehicle.year}</span>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.label}>Location:</span>
-            <span className={styles.value}>📍 {vehicle.location}</span>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.label}>Seller:</span>
-            <span className={styles.value}>👤 {vehicle.sellerName}</span>
-          </div>
+        <div className={styles.statusRow}>
+          <span className={displayVehicle.available ? styles.available : styles.unavailable}>
+            {displayVehicle.available ? 'Available' : 'Not Available'}
+          </span>
         </div>
 
-        <div className={styles.description}>
-          <h3 className={styles.sectionTitle}>Description</h3>
-          <p className={styles.descriptionText}>{vehicle.description}</p>
+        <div className={styles.priceBlock}>
+          <div className={styles.priceLabel}>Price Per Day :</div>
+          <div className={styles.priceValue}>{formattedPrice}</div>
         </div>
 
-        <div className={styles.delivery}>
-          <h3 className={styles.sectionTitle}>Delivery Details</h3>
-          <p className={styles.deliveryText}>{vehicle.deliveryDetails}</p>
-        </div>
-
-        {/* Booking Section */}
-        {isLoggedIn && !isOwner && vehicle.available && (
-          <div className={styles.booking}>
-            <h3 className={styles.sectionTitle}>Book This Vehicle</h3>
-            
-            {error && (
-              <div className={styles.error}>
-                <span className={styles.errorIcon}>⚠️</span>
-                {error}
-              </div>
-            )}
-
-            <div className={styles.bookingForm}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="startDate" className={styles.inputLabel}>
-                  Start Date
-                </label>
-                <input
-                  type="date"
-                  id="startDate"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  min={getMinDate()}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="duration" className={styles.inputLabel}>
-                  Duration (days)
-                </label>
-                <select
-                  id="duration"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                  className={styles.input}
-                >
-                  {[...Array(30)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1} {i + 1 === 1 ? 'day' : 'days'}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.total}>
-                <span className={styles.totalLabel}>Total Amount:</span>
-                <span className={styles.totalAmount}>
-                  LKR {totalPrice.toLocaleString()}
-                </span>
-              </div>
-
-              <button
-                onClick={handleBook}
-                disabled={!canBook || loading}
-                className={styles.bookButton}
-              >
-                {loading ? 'Booking...' : 'Book Now'}
-              </button>
-            </div>
-          </div>
+        {displayVehicle.location && (
+          <div className={styles.locationBadge}>{String(displayVehicle.location).toUpperCase()}</div>
         )}
 
-        {/* Login prompt for non-logged in users */}
-        {!isLoggedIn && vehicle.available && (
-          <div className={styles.loginPrompt}>
-            <p>Please log in to book this vehicle</p>
+        <div className={styles.textDetails}>
+           <div className={styles.textGap}>
+          <p><strong>Manufacturer</strong></p>
+          <p>{displayVehicle.manufacturer || '—'}</p></div>
+          <div className={styles.textGap}>
+          <p><strong>YOM</strong></p>
+          <p>{displayVehicle.year || '—'}</p>
           </div>
-        )}
+          <div className={styles.textGap}>
+          <p><strong>Optional details</strong></p>
+          <p>{displayVehicle.description || '—'}</p></div>
+          <p><strong>Delivery Mode</strong> : {displayVehicle.deliveryDetails || 'Deliver to specific area or Self Pick up'}</p>
+          <p><strong>Security deposit type</strong> as described by the seller</p>
+        </div>
 
-        {/* Owner message */}
-        {isOwner && (
-          <div className={styles.ownerMessage}>
-            <p>This is your vehicle listing</p>
-          </div>
-        )}
+        <div className={styles.durationRow}>
+          <span className={styles.durationLabel}>Select Duration :&nbsp;</span>
+          <span className={styles.daysText}>Days</span>
+          <select
+            className={styles.durationSelect}
+            aria-label="Duration in days"
+            value={duration}
+            onChange={(e) => setDuration(Number(e.target.value))}
+          >
+            {Array.from({ length: 30 }, (_, i) => i + 1).map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        </div>
+
+        <ul className={styles.notes}>
+          <li>
+            If the vehicle is already booked or not available at the time, this button should blurred
+          </li>
+          <li className={styles.alert}>
+            PAY & BOOK BUTTON IS NOT AVAILABLE WHEN LOGGED AS A SELLER THEY CAN ONLY VIEW
+          </li>
+        </ul>
+
+        {message && <div className={styles.message}>{message}</div>}
+
+        <div className={styles.actions}>
+          <button
+            className={styles.bookBtn}
+            onClick={handleBook}
+            disabled={!canBook}
+            aria-disabled={!canBook}
+          >
+            {loading ? 'Booking…' : 'Book'}
+          </button>
+        </div>
       </div>
     </div>
   );
