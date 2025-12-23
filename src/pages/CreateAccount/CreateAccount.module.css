@@ -1,5 +1,5 @@
-/* Login CSS Module */
-.login {
+/* Create Account CSS Module */
+.createAccount {
   min-height: 100vh;
   background: #f5f5f5;
   display: flex;
@@ -14,8 +14,8 @@
   padding: 0 1rem;
 }
 
-/* Login Card */
-.loginCard {
+/* Account Card */
+.accountCard {
   background: white;
   border-radius: 24px;
   padding: 3rem 2.5rem 1.5rem 2.5rem;
@@ -35,7 +35,6 @@
   margin-bottom: 0.75rem;
   line-height: 1.2;
   letter-spacing: -0.5px;
-  text-transform: uppercase;
   margin-top: -20px;
 }
 
@@ -109,21 +108,8 @@
   opacity: 1;
 }
 
-/* Account Links */
-.accountLinks {
-  margin-top: -0.5rem;
-  font-size: 0.9rem;
-}
-
-.newAccount {
-  color: #666;
-}
-
-/* Options Row */
-.options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Terms Row */
+.termsRow {
   margin-top: 0.5rem;
 }
 
@@ -140,18 +126,7 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-}
-
-.forgotLink {
-  color: #000;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: opacity 0.2s;
-}
-
-.forgotLink:hover {
-  opacity: 0.7;
+  flex-shrink: 0;
 }
 
 /* Error */
@@ -299,13 +274,9 @@
   text-align: center;
 }
 
-.demoInfo {
-  background: #f8f9fa;
-  padding: 0.875rem 1rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  color: #555;
-  line-height: 1.5;
+.loginPrompt {
+  font-size: 0.9rem;
+  color: #666;
 }
 
 .link {
@@ -321,7 +292,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .login {
+  .createAccount {
     padding: 1.5rem 0;
   }
 
@@ -330,7 +301,7 @@
     padding: 0 1rem;
   }
 
-  .loginCard {
+  .accountCard {
     padding: 2.5rem 2rem 1.5rem 2rem;
     border-radius: 20px;
   }
@@ -350,9 +321,9 @@
 }
 
 @media (max-width: 480px) {
-  .login {
+  .createAccount {
     padding: 0.5rem 0;
-    margin-top: -40px;
+    margin-top: 0;
   }
 
   .container {
@@ -360,7 +331,7 @@
     max-width: 100%;
   }
 
-  .loginCard {
+  .accountCard {
     padding: 1.5rem 1.25rem 1.25rem 1.25rem;
     border-radius: 16px;
     border: 1px solid rgba(0,0,0,0.15);
@@ -408,23 +379,12 @@
     height: 18px;
   }
 
-  .accountLinks {
-    font-size: 0.85rem;
-  }
-
   .submitButton {
     padding: 0.875rem 0.75rem;
     font-size: 0.9rem;
   }
 
-  .options {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.65rem;
-  }
-
-  .checkboxLabel,
-  .forgotLink {
+  .checkboxLabel {
     font-size: 0.85rem;
   }
 
@@ -461,9 +421,8 @@
     margin-top: 1.25rem;
   }
 
-  .demoInfo {
-    font-size: 0.8rem;
-    padding: 0.75rem 0.875rem;
+  .loginPrompt {
+    font-size: 0.85rem;
   }
 
   .error {
@@ -474,7 +433,7 @@
 
 /* Extra small screens */
 @media (max-width: 360px) {
-  .loginCard {
+  .accountCard {
     padding: 1.25rem 1rem 1rem 1rem;
   }
 

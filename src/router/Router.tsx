@@ -12,6 +12,7 @@ import Ads from '../pages/Ads/Ads';
 import AdDetails from '../pages/AdDetails/AdDetails';
 import CreateAd from '../pages/CreateAd/CreateAd';
 import Login from '../pages/Login/Login';
+import CreateAccount from '../pages/CreateAccount/CreateAccount';
 import Profile from '../pages/Profile/Profile';
 
 export const router = createBrowserRouter([
@@ -38,6 +39,10 @@ export const router = createBrowserRouter([
       {
         path: 'login',
         element: <Login />
+      },
+      {
+        path: 'register',
+        element: <CreateAccount />
       },
       {
         path: 'profile',

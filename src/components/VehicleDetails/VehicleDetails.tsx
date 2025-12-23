@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { bookVehicle } from '../../services/api';
 import type { Vehicle } from '../../services/api';
@@ -23,6 +23,8 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [thumbPage, setThumbPage] = useState(0);
+  const [thumbsPerPage, setThumbsPerPage] = useState(4);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const isOwner = user?.id === vehicle.sellerId;
   const canBook = isLoggedIn && !isOwner && vehicle.available && !loading;
@@ -42,11 +44,10 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
  
 
   const hasImages = sampleImages.length > 0;
-  const hasMultiple = sampleImages.length > 1;
-  const THUMBS_PER_PAGE = 4;
-  const totalPages = Math.ceil(sampleImages.length / THUMBS_PER_PAGE);
-  const startIdx = thumbPage * THUMBS_PER_PAGE;
-  const endIdx = startIdx + THUMBS_PER_PAGE;
+  const thumbsPerPageUsed = thumbsPerPage;
+  const totalPages = Math.ceil(sampleImages.length / Math.max(1, thumbsPerPageUsed));
+  const startIdx = thumbPage * thumbsPerPageUsed;
+  const endIdx = startIdx + thumbsPerPageUsed;
   const visibleThumbs = sampleImages.map((s, i) => ({ src: s, idx: i })).slice(startIdx, endIdx);
 
   // Mock vehicle data for local testing when a real `vehicle` prop isn't provided
@@ -71,19 +72,39 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
     maximumFractionDigits: 2,
   })}`;
 
-  const goPrev = () => {
-    setCurrentImageIndex((i) => (i === 0 ? sampleImages.length - 1 : i - 1));
-  };
-  const goNext = () => {
-    setCurrentImageIndex((i) => (i === sampleImages.length - 1 ? 0 : i + 1));
-  };
-
+  // thumbnail page navigation
   const goThumbPrev = () => {
-    if (thumbPage > 0) setThumbPage(thumbPage - 1);
+    if (thumbPage > 0) setThumbPage((p) => p - 1);
   };
   const goThumbNext = () => {
-    if (thumbPage < totalPages - 1) setThumbPage(thumbPage + 1);
+    if (thumbPage < totalPages - 1) setThumbPage((p) => p + 1);
   };
+
+  // adjust thumbnails per page based on screen width
+  useEffect(() => {
+    function updateThumbsPerPage() {
+      const w = window.innerWidth;
+      if (w < 480) setThumbsPerPage(3);
+      else if (w < 768) setThumbsPerPage(4);
+      else setThumbsPerPage(4);
+    }
+    updateThumbsPerPage();
+    window.addEventListener('resize', updateThumbsPerPage);
+    return () => window.removeEventListener('resize', updateThumbsPerPage);
+  }, []);
+
+  // ensure selected main image is visible in the current thumb page
+  useEffect(() => {
+    const newPage = Math.floor(currentImageIndex / Math.max(1, thumbsPerPage));
+    if (newPage !== thumbPage) setThumbPage(newPage);
+  }, [currentImageIndex, thumbsPerPage]);
+
+  useEffect(() => {
+    // when the user changes the main image or thumbnail page, ensure the card is visible at the top
+    if (rootRef.current) {
+      rootRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [currentImageIndex, thumbPage]);
 
   const handleBook = async () => {
     if (!canBook) return;
@@ -105,7 +126,7 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
   };
 
   return (
-    <div className={styles.wrap}>
+    <div className={styles.wrap} ref={rootRef}>
       <div className={styles.card}>
         <h2 className={styles.title}>{displayVehicle.title || 'Vehicle Name'}</h2>
 
