@@ -1,14 +1,3 @@
-/**
- * Quick Wheel Vehicle Rental App Component
- * Component: VehicleCard
- * Description: Displays a single vehicle ad with image, name, rental amount, and availability.
- * Tech: React + TypeScript + CSS Modules.
- * Behavior:
- * - Props include id, title, category, image, rentalAmount, available.
- * - Clicking the card navigates to the details page.
- * - Use .card, .image, .details, .available, .notAvailable from CSS Module.
- */
-
 import { useNavigate } from 'react-router-dom';
 import type { Vehicle } from '../../services/api';
 import styles from './VehicleCard.module.css';
@@ -22,87 +11,82 @@ const VehicleCard = ({ vehicle, onClick }: VehicleCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (onClick) {
-      onClick(vehicle.id);
-    } else {
-      navigate(`/ad/${vehicle.id}`);
-    }
+    if (onClick) return onClick(vehicle.id);
+    navigate(`/ad/${vehicle.id}`);
   };
 
-  const getCategoryIcon = (category: string): string => {
-    switch (category) {
-      case 'Cars':
-        return '🚗';
-      case 'Scooters':
-        return '🛴';
-      case 'Motor Bicycle':
-        return '🏍️';
-      case 'Vans':
-        return '🚐';
-      case 'Large Vehicles':
-        return '🚚';
-      default:
-        return '🚗';
-    }
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') handleClick();
   };
+
+  const formatNumber = (n: number) => n.toLocaleString();
 
   return (
-    <div className={styles.card} onClick={handleClick}>
+    <article
+      className={styles.card}
+      role="button"
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      aria-label={`${vehicle.title} ${vehicle.category} ${vehicle.rentalAmount}`}
+    >
       <div className={styles.imageContainer}>
-        <img 
-          src={vehicle.image} 
-          alt={vehicle.title} 
+        <img
+          src={vehicle.image}
+          alt={vehicle.title}
           className={styles.image}
           onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop';
+            const t = e.target as HTMLImageElement;
+            t.src = vehicle.images?.[0] || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop';
           }}
         />
-        <div className={styles.categoryBadge}>
-          <span className={styles.categoryIcon}>{getCategoryIcon(vehicle.category)}</span>
-          <span className={styles.categoryText}>{vehicle.category}</span>
-        </div>
-        {!vehicle.available && (
-          <div className={styles.unavailableBadge}>
-            Not Available
-          </div>
-        )}
+        {!vehicle.available && <span className={styles.unavailableBadge}>Not Available</span>}
       </div>
-      
+
       <div className={styles.details}>
-        <h3 className={styles.title}>{vehicle.title}</h3>
-        
-        <div className={styles.info}>
-          <div className={styles.manufacturer}>
-            <span className={styles.label}>Brand:</span>
-            <span className={styles.value}>{vehicle.manufacturer}</span>
-          </div>
-          
-          <div className={styles.location}>
-            <span className={styles.locationIcon}>📍</span>
-            <span className={styles.locationText}>{vehicle.location}</span>
-          </div>
+        <div className={styles.titleRow}>
+          <h3 className={styles.title}>{vehicle.title}</h3>
+          <div className={styles.categoryPill}>{vehicle.category}</div>
         </div>
 
-        <div className={styles.pricing}>
-          <span className={styles.price}>LKR {vehicle.rentalAmount.toLocaleString()}</span>
-          <span className={styles.period}>/ day</span>
+        <div className={styles.rentalRow}>
+          <span className={styles.label}>Rental amount :</span>
+          <span className={styles.priceNumber}>{formatNumber(vehicle.rentalAmount)}</span>
         </div>
 
         <div className={styles.availability}>
           {vehicle.available ? (
-            <span className={styles.available}>✓ Available</span>
+            <span className={styles.available}>Available</span>
           ) : (
-            <span className={styles.notAvailable}>✗ Not Available</span>
+            <span className={styles.notAvailable}>Not available</span>
           )}
         </div>
 
-        <div className={styles.seller}>
-          <span className={styles.sellerIcon}>👤</span>
-          <span className={styles.sellerName}>{vehicle.sellerName}</span>
+        <div className={styles.extraInfo}>
+          <div className={styles.infoCol}>
+            <div className={styles.manufacturer}>
+              <span className={styles.label}>Brand:</span>
+              <span className={styles.value}>{vehicle.manufacturer}</span>
+            </div>
+            <div className={styles.model}>
+              <span className={styles.label}>Year:</span>
+              <span className={styles.value}>{vehicle.year}</span>
+            </div>
+          </div>
+
+          <div className={styles.infoCol}>
+            <div className={styles.location}>
+              <span className={styles.locationIcon}>📍</span>
+              <span className={styles.locationText}>{vehicle.location}</span>
+            </div>
+            <div className={styles.delivery}>
+              <span className={styles.label}>Delivery:</span>
+              <span className={styles.value}>{vehicle.deliveryDetails || '—'}</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 

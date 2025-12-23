@@ -238,6 +238,8 @@
   .grid {
     grid-template-columns: 1fr;
     gap: 1rem;
+    margin: 0 auto;
+    justify-items: center;
   }
 
   .title {
