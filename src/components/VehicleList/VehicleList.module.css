@@ -35,10 +35,8 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
-  margin: 0 auto 3rem; /* center grid */
+  margin-bottom: 3rem;
   max-width: 900px;
-  width: 100%;
-  justify-items: center;
 }
 
 /* Loading State */
@@ -218,9 +216,8 @@
   .grid {
     grid-template-columns: 1fr;
     gap: 1rem;
-    margin: 0 auto 2rem;
+    margin-bottom: 2rem;
     max-width: 100%;
-    justify-items: center;
   }
 
   .pagination {

@@ -21,14 +21,12 @@
 
 /* Left Image */
 .imageContainer {
-  width: clamp(240px, 45%, 460px);
-  min-width: 180px;
-  height: 220px;
-  flex-shrink: 0;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #eee;
   position: relative;
+  width: clamp(150px, 35%, 250px);
+  height: auto;
+  min-height: 200px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .image {
@@ -40,18 +38,46 @@
 }
 
 .card:hover .image {
-  transform: scale(1.03);
+  transform: scale(1.05);
+}
+
+.categoryBadge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  backdrop-filter: blur(10px);
 }
 
 
 
-/* Right details */
+.unavailableBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #f44336;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Details Section */
 .details {
-  padding: 22px;
+  padding: clamp(0.8rem, 2vw, 1.2rem);
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: clamp(0.4rem, 1vw, 0.6rem);
+  justify-content: space-between;
 }
 
 /* Title + Category pill (top right) */
@@ -138,46 +164,95 @@
   margin-left: 6px;
 }
 
-/* Footer / seller */
-.seller {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-start;
-  color: #6b7280;
-  font-size: 0.88rem;
-} 
-
-/* Responsive: stack on small screens */
-@media (max-width: 560px) {
+/* Responsive Design */
+@media (max-width: 768px) {
   .card {
-    flex-direction: column;
-    border-radius: 12px;
+    flex-direction: row;
   }
 
   .imageContainer {
-    width: 100%;
-    height: 180px;
-    border-radius: 12px 12px 0 0;
+    width: clamp(120px, 30%, 180px);
+    min-height: 160px;
   }
 
   .details {
-    padding: 16px;
-    text-align: left;
+    padding: 0.8rem 1rem;
+    gap: 0.4rem;
   }
 
-  .titleRow {
-    justify-content: space-between;
+  .title {
+    font-size: 0.95rem;
   }
 
-  .rentalRow,
-  .availability,
-  .extraInfo,
+  .price {
+    font-size: 1.1rem;
+  }
+
+  .categoryBadge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .unavailableBadge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .info {
+    gap: 0.25rem;
+  }
+
+  .manufacturer,
+  .location {
+    font-size: 0.8rem;
+  }
+
   .seller {
-    justify-content: flex-start;
-    text-align: left;
+    font-size: 0.75rem;
   }
 
-  .categoryPill {
-    order: 2;
+@media (max-width: 480px) {
+  .card {
+    flex-direction: row;
+  }
+
+  .imageContainer {
+    width: clamp(100px, 28%, 140px);
+    min-height: 140px;
+  }
+
+  .details {
+    padding: 0.6rem 0.8rem;
+    gap: 0.25rem;
+  }
+
+  .title {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .price {
+    font-size: 1rem;
+  }
+
+  .info {
+    gap: 0.2rem;
+    display: none;
+  }
+
+  .manufacturer,
+  .location {
+    font-size: 0.75rem;
+  }
+
+  .categoryBadge {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.6rem;
+  }
+
+  .seller {
+    font-size: 0.7rem;
+    padding-top: 0.3rem;
   }
 }
