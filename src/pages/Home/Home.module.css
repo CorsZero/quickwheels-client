@@ -3,9 +3,48 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+ 
 }
 
 /* Ensure proper spacing between sections */
 .home > * {
   flex-shrink: 0;
+   background-color: #ffffff;
+}
+
+/* Centered italic heading for HOT Ads */
+.hotHeading {
+  max-width: 1200px;
+  margin: 0 auto 0.75rem auto;
+  padding: 0 1rem;
+  text-align: center;
+  font-style: italic;
+  font-size: 200%;
+  color: #666;
+  font-weight: 700;
+}
+
+/* Show More button container under ads section */
+.showMoreContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.showMoreButton {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.showMoreButton:hover {
+  background-color: #333333;
+  transform: translateY(-2px);
 }
