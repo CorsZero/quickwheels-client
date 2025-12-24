@@ -14,6 +14,7 @@ import CreateAd from '../pages/CreateAd/CreateAd';
 import Login from '../pages/Login/Login';
 import CreateAccount from '../pages/CreateAccount/CreateAccount';
 import Profile from '../pages/Profile/Profile';
+import ScheduledRideDetails from '../pages/ScheduledRideDetails/ScheduledRideDetails';
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: 'profile',
         element: <Profile />
+      },
+      {
+        path: 'scheduled-ride/:id',
+        element: <ScheduledRideDetails />
       }
     ]
   }

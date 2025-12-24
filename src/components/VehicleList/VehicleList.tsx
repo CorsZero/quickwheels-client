@@ -17,9 +17,10 @@ interface VehicleListProps {
   title?: string;
   showPagination?: boolean;
   limit?: number;
+  showHeader?: boolean;
 }
 
-const VehicleList = ({ title = "Available Vehicles", showPagination = false, limit }: VehicleListProps) => {
+const VehicleList = ({ title = "Available Vehicles", showPagination = false, limit, showHeader = true }: VehicleListProps) => {
   const { ads, loading, error, currentPage, totalPages, fetchAds } = useAds();
 
   const displayedAds = limit ? ads.slice(0, limit) : ads;
@@ -154,12 +155,14 @@ const VehicleList = ({ title = "Available Vehicles", showPagination = false, lim
   return (
     <section className={styles.vehicleList}>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>{title}</h2>
-          <div className={styles.resultsCount}>
-            {displayedAds.length} {displayedAds.length === 1 ? 'vehicle' : 'vehicles'} found
+        {showHeader && (
+          <div className={styles.header}>
+            <h2 className={styles.title}>{title}</h2>
+            <div className={styles.resultsCount}>
+              {displayedAds.length} {displayedAds.length === 1 ? 'vehicle' : 'vehicles'} found
+            </div>
           </div>
-        </div>
+        )}
 
         <div className={styles.grid}>
           {displayedAds.map((vehicle) => (
