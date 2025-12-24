@@ -35,7 +35,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  margin: 0 auto 3rem;
   max-width: 900px;
 }
 
@@ -192,10 +192,34 @@
   cursor: not-allowed;
 }
 
-/* Responsive Design */
+/* Responsive Design - Industrial Level */
+
+/* Tablet Landscape (1024px and below) */
+@media (max-width: 1024px) {
+  .container {
+    max-width: 960px;
+    padding: 0 1.5rem;
+  }
+
+  .grid {
+    max-width: 850px;
+    gap: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+}
+
+/* Tablet Portrait (768px and below) */
 @media (max-width: 768px) {
   .vehicleList {
     padding: 2rem 0;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0 1rem;
   }
 
   .header {
@@ -206,7 +230,7 @@
   }
 
   .title {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
 
   .resultsCount {
@@ -215,9 +239,9 @@
 
   .grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    max-width: 100%;
+    gap: 1.25rem;
+    margin: 0 auto 2rem;
+    max-width: 700px;
   }
 
   .pagination {
@@ -230,20 +254,86 @@
   }
 }
 
+/* Mobile Large (640px and below) */
+@media (max-width: 640px) {
+  .vehicleList {
+    padding: 1.5rem 0;
+  }
+
+  .container {
+    padding: 0 0.875rem;
+  }
+
+  .header {
+    margin-bottom: 1.25rem;
+  }
+
+  .title {
+    font-size: 1.4rem;
+  }
+
+  .resultsCount {
+    font-size: 0.85rem;
+  }
+
+  .grid {
+    gap: 1rem;
+    margin: 0 auto 1.75rem;
+    max-width: 100%;
+  }
+
+  .loading,
+  .error,
+  .empty {
+    padding: 3.5rem 1.5rem;
+  }
+
+  .loadingSpinner {
+    width: 45px;
+    height: 45px;
+  }
+
+  .emptyIcon {
+    font-size: 3.5rem;
+  }
+
+  .emptyTitle {
+    font-size: 1.35rem;
+  }
+
+  .paginationButton {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.85rem;
+    min-width: 38px;
+  }
+}
+
+/* Mobile Medium (480px and below) */
 @media (max-width: 480px) {
+  .vehicleList {
+    padding: 1.25rem 0;
+  }
+
   .container {
     padding: 0 0.75rem;
   }
 
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin: 0 auto;
-    justify-items: center;
+  .header {
+    margin-bottom: 1rem;
+    gap: 0.4rem;
   }
 
   .title {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
+  }
+
+  .resultsCount {
+    font-size: 0.8rem;
+  }
+
+  .grid {
+    gap: 0.875rem;
+    margin: 0 auto 1.5rem;
   }
 
   .loading,
@@ -252,17 +342,123 @@
     padding: 3rem 1rem;
   }
 
+  .loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+
+  .loading p {
+    font-size: 1rem;
+  }
+
   .emptyIcon {
     font-size: 3rem;
   }
 
   .emptyTitle {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+  }
+
+  .emptyMessage {
+    font-size: 0.9rem;
+  }
+
+  .errorMessage {
+    font-size: 1rem;
+  }
+
+  .retryButton {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .pagination {
+    margin-top: 1.25rem;
+  }
+
+  .paginationInfo {
+    font-size: 0.85rem;
   }
 
   .paginationButton {
     padding: 0.4rem 0.6rem;
     font-size: 0.8rem;
-    min-width: 35px;
+    min-width: 36px;
+  }
+}
+
+/* Mobile Small (360px and below) */
+@media (max-width: 360px) {
+  .vehicleList {
+    padding: 1rem 0;
+  }
+
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  .header {
+    margin-bottom: 0.875rem;
+    gap: 0.3rem;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .resultsCount {
+    font-size: 0.75rem;
+  }
+
+  .grid {
+    gap: 0.75rem;
+    margin: 0 auto 1.25rem;
+  }
+
+  .loading,
+  .error,
+  .empty {
+    padding: 2.5rem 0.75rem;
+  }
+
+  .loadingSpinner {
+    width: 35px;
+    height: 35px;
+  }
+
+  .loading p {
+    font-size: 0.9rem;
+  }
+
+  .emptyIcon {
+    font-size: 2.5rem;
+  }
+
+  .emptyTitle {
+    font-size: 1.1rem;
+  }
+
+  .emptyMessage {
+    font-size: 0.85rem;
+  }
+
+  .errorMessage {
+    font-size: 0.95rem;
+  }
+
+  .retryButton {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+  }
+
+  .paginationInfo {
+    font-size: 0.8rem;
+  }
+
+  .paginationButton {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+    min-width: 32px;
   }
 }

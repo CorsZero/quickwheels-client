@@ -112,9 +112,15 @@
 }
 
 .profileIcon {
-  font-size: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 0.5rem;
-  color: white;
+}
+
+.profileIcon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .profileName {
@@ -138,7 +144,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   min-width: 150px;
   z-index: 1001;
-  margin-top: 0.5rem;
+  margin-top: 0.8rem;
 }
 
 .dropdownItem {
