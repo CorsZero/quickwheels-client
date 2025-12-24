@@ -40,7 +40,7 @@ const VehicleCard = ({ vehicle, onClick }: VehicleCardProps) => {
             t.src = vehicle.images?.[0] || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop';
           }}
         />
-        {!vehicle.available && <span className={styles.unavailableBadge}>Not Available</span>}
+       
       </div>
 
       <div className={styles.details}>
