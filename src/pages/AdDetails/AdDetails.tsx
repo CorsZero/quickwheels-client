@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAds } from '../../contexts/AdsContext';
+import Alert from '../../components/Alert/Alert';
 import VehicleDetails from '../../components/VehicleDetails/VehicleDetails';
 import type { Vehicle } from '../../services/api';
 import styles from './AdDetails.module.css';
@@ -68,6 +69,14 @@ const AdDetails = () => {
     return (
       <div className={styles.adDetails}>
         <div className={styles.container}>
+          {error && (
+            <Alert
+              message={error}
+              type="error"
+              duration={0}
+              onClose={() => navigate('/ads')}
+            />
+          )}
           <div className={styles.error}>
             <div className={styles.errorIcon}>⚠️</div>
             <h2 className={styles.errorTitle}>

@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import Alert from '../../components/Alert/Alert';
 import styles from './Login.module.css';
 
 const Login = () => {
@@ -54,10 +55,11 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className={styles.form}>
             {error && (
-              <div className={styles.error}>
-                <span className={styles.errorIcon}>⚠️</span>
-                {error}
-              </div>
+              <Alert 
+                message={error} 
+                type="error" 
+                onClose={() => setError('')}
+              />
             )}
 
             <div className={styles.inputGroup}>

@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserAds } from '../../services/api';
+import Alert from '../../components/Alert/Alert';
 import type { Vehicle, BookedRide } from '../../services/api';
 import styles from './Profile.module.css';
 import profileIcon from '../../assets/profileAssets/profile.svg';
@@ -26,6 +27,7 @@ const Profile = () => {
   const [userAds, setUserAds] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -76,8 +78,10 @@ const Profile = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/');
+      setSuccessMessage('Logged out successfully!');
+      setTimeout(() => navigate('/'), 1500);
     } catch (err) {
+      setError('Logout failed. Please try again.');
       console.error('Logout error:', err);
     }
   };
@@ -91,7 +95,8 @@ const Profile = () => {
     // TODO: Implement API call to save profile
     console.log('Saving profile:', formData);
     setShowEditModal(false);
-    // Show success message
+    setSuccessMessage('Profile updated successfully!');
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   const handleCloseModal = () => {
@@ -142,6 +147,21 @@ const Profile = () => {
   return (
     <div className={styles.profile}>
       <div className={styles.container}>
+        {error && (
+          <Alert
+            message={error}
+            type="error"
+            onClose={() => setError('')}
+          />
+        )}
+        {successMessage && (
+          <Alert
+            message={successMessage}
+            type="success"
+            duration={3000}
+            onClose={() => setSuccessMessage('')}
+          />
+        )}
         <div className={styles.profileCard}>
           {/* Header */}
           <div className={styles.profileHeader}>
