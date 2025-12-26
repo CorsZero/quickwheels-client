@@ -18,6 +18,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -30,7 +31,8 @@ const Login = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        navigate('/profile');
+        setSuccess(true);
+        setTimeout(() => navigate('/profile'), 1500);
       } else {
         setError('Invalid email or password. Please try again.');
       }
@@ -59,6 +61,14 @@ const Login = () => {
                 message={error} 
                 type="error" 
                 onClose={() => setError('')}
+              />
+            )}
+            {success && (
+              <Alert 
+                message="Login successful! Redirecting to your profile..." 
+                type="success" 
+                duration={2000}
+                onClose={() => setSuccess(false)}
               />
             )}
 

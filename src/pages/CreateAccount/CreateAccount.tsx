@@ -21,6 +21,7 @@ const CreateAccount = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -44,7 +45,8 @@ const CreateAccount = () => {
     try {
       const success = await register(email, password, name);
       if (success) {
-        navigate('/profile');
+        setSuccess(true);
+        setTimeout(() => navigate('/profile'), 1500);
       } else {
         setError('Registration failed. Please try again.');
       }
@@ -72,6 +74,14 @@ const CreateAccount = () => {
                 message={error} 
                 type="error" 
                 onClose={() => setError('')}
+              />
+            )}
+            {success && (
+              <Alert 
+                message="Account created successfully! Redirecting..." 
+                type="success" 
+                duration={2000}
+                onClose={() => setSuccess(false)}
               />
             )}
 

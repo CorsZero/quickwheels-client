@@ -180,6 +180,7 @@ const CreateAd = () => {
             <Alert 
               message={error} 
               type="error" 
+              duration={0}
               onClose={() => {}}
             />
           )}

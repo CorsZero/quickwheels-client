@@ -8,6 +8,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import type { AlertType } from '../../components/Alert/Alert';
+import Alert from '../../components/Alert/Alert';
 import styles from './ScheduledRideDetails.module.css';
 
 const ScheduledRideDetails = () => {
@@ -35,6 +37,7 @@ const ScheduledRideDetails = () => {
   const [thumbsPerPage, setThumbsPerPage] = useState(4);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Hooks must run consistently: place effects before any early returns
   // adjust thumbnails per page based on screen width
@@ -157,10 +160,12 @@ const ScheduledRideDetails = () => {
 
     try {
       setLoading(true);
+      setError('');
       // TODO: Implement API call to update booking
       console.log('Saving changes:', formData);
       setIsEditing(false);
-      // Show success message
+      setSuccessMessage('Ride details updated successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       setError('Failed to save changes');
       console.error('Error saving changes:', err);
@@ -173,9 +178,11 @@ const ScheduledRideDetails = () => {
     if (window.confirm('Are you sure you want to delete this scheduled ride? This action cannot be undone.')) {
       try {
         setLoading(true);
+        setError('');
         // TODO: Implement API call to delete booking
         console.log('Deleting ride:', id);
-        navigate('/profile');
+        setSuccessMessage('Ride deleted successfully! Redirecting...');
+        setTimeout(() => navigate('/profile'), 1500);
       } catch (err) {
         setError('Failed to delete ride');
         console.error('Error deleting ride:', err);
@@ -188,6 +195,21 @@ const ScheduledRideDetails = () => {
   return (
     <div className={styles.scheduledRide}>
       <div className={styles.container}>
+        {error && (
+          <Alert 
+            message={error} 
+            type="error" 
+            onClose={() => setError('')}
+          />
+        )}
+        {successMessage && (
+          <Alert 
+            message={successMessage} 
+            type="success" 
+            duration={3000}
+            onClose={() => setSuccessMessage('')}
+          />
+        )}
         <div className={styles.header}>
           <h1 className={styles.title}>Scheduled Ride Details</h1>
           <p className={styles.subtitle}>
@@ -199,10 +221,19 @@ const ScheduledRideDetails = () => {
         {isEditing ? (
           <form onSubmit={handleSaveChanges} className={styles.form}>
             {error && (
-              <div className={styles.error}>
-                <span className={styles.errorIcon}>⚠️</span>
-                {error}
-              </div>
+              <Alert 
+                message={error} 
+                type="error" 
+                onClose={() => setError('')}
+              />
+            )}
+            {successMessage && (
+              <Alert 
+                message={successMessage} 
+                type="success" 
+                duration={3000}
+                onClose={() => setSuccessMessage('')}
+              />
             )}
 
             {/* Basic Information */}
