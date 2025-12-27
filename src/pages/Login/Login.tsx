@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import Alert from '../../components/Alert/Alert';
 import styles from './Login.module.css';
 
 const Login = () => {
@@ -17,6 +18,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -29,7 +31,8 @@ const Login = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        navigate('/profile');
+        setSuccess(true);
+        setTimeout(() => navigate('/profile'), 1500);
       } else {
         setError('Invalid email or password. Please try again.');
       }
@@ -54,10 +57,19 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className={styles.form}>
             {error && (
-              <div className={styles.error}>
-                <span className={styles.errorIcon}>⚠️</span>
-                {error}
-              </div>
+              <Alert 
+                message={error} 
+                type="error" 
+                onClose={() => setError('')}
+              />
+            )}
+            {success && (
+              <Alert 
+                message="Login successful! Redirecting to your profile..." 
+                type="success" 
+                duration={2000}
+                onClose={() => setSuccess(false)}
+              />
             )}
 
             <div className={styles.inputGroup}>

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { bookVehicle } from '../../services/api';
 import type { Vehicle } from '../../services/api';
+import type { AlertType } from '../Alert/Alert';
+import Alert from '../Alert/Alert';
 import styles from './VehicleDetails.module.css';
 import img1 from '../../assets/testAssets/344x258.jpg';
 import img2 from '../../assets/testAssets/344x258.jpg';
@@ -15,6 +17,8 @@ interface VehicleDetailsProps {
   vehicle: Vehicle;
 }
 
+const THUMBS_PER_PAGE = 4;
+
 // Recreated Vehicle Details to match the provided mock 1:1
 const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
   const { user, isLoggedIn } = useAuth();
@@ -22,6 +26,7 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
   const [duration, setDuration] = useState(5);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<AlertType>('info');
   const [thumbPage, setThumbPage] = useState(0);
   const [thumbsPerPage, setThumbsPerPage] = useState(4);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -229,7 +234,13 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
           </li>
         </ul>
 
-        {message && <div className={styles.message}>{message}</div>}
+        {message && (
+          <Alert 
+            message={message} 
+            type={messageType} 
+            onClose={() => setMessage('')}
+          />
+        )}
 
         <div className={styles.actions}>
           <button

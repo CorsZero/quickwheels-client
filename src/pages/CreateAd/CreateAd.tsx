@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAds } from '../../contexts/AdsContext';
+import Alert from '../../components/Alert/Alert';
 import type { CreateAdData, Vehicle } from '../../services/api';
 import styles from './CreateAd.module.css';
 
@@ -176,10 +177,12 @@ const CreateAd = () => {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {error && (
-            <div className={styles.error}>
-              <span className={styles.errorIcon}>⚠️</span>
-              {error}
-            </div>
+            <Alert 
+              message={error} 
+              type="error" 
+              duration={0}
+              onClose={() => {}}
+            />
           )}
 
           {/* Basic Information */}

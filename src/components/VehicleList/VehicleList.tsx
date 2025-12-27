@@ -10,6 +10,7 @@
  */
 
 import { useAds } from '../../contexts/AdsContext';
+import Alert from '../Alert/Alert';
 import VehicleCard from '../VehicleCard/VehicleCard';
 import styles from './VehicleList.module.css';
 
@@ -120,6 +121,12 @@ const VehicleList = ({ title = "Available Vehicles", showPagination = false, lim
       <section className={styles.vehicleList}>
         <div className={styles.container}>
           <h2 className={styles.title}>{title}</h2>
+          <Alert
+            message={error}
+            type="error"
+            duration={0}
+            onClose={() => fetchAds(currentPage)}
+          />
           <div className={styles.error}>
             <div className={styles.errorIcon}>⚠️</div>
             <p className={styles.errorMessage}>{error}</p>
