@@ -15,6 +15,7 @@ import Login from '../pages/Login/Login';
 import CreateAccount from '../pages/CreateAccount/CreateAccount';
 import Profile from '../pages/Profile/Profile';
 import ScheduledRideDetails from '../pages/ScheduledRideDetails/ScheduledRideDetails';
+import ApiTesting from '../pages/ApiTesting/ApiTesting';
 
 export const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ export const router = createBrowserRouter([
       {
         path: 'scheduled-ride/:id',
         element: <ScheduledRideDetails />
+      },
+      {
+        path: 'api-testing',
+        element: <ApiTesting />
       }
     ]
   }
