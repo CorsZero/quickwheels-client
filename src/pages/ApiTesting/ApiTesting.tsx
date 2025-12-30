@@ -27,26 +27,16 @@ import {
   useCompleteRental,
 } from '../../bff/queries/booking.queries';
 import {
-  fetchVehicles,
-  fetchVehicleById,
-  fetchMyListings,
-  createVehicle,
-  updateVehicle,
-  updateVehicleStatus,
-  removeVehicle,
-} from '../../bff/api/vehicle.api';
-import {
-  createBooking,
-  fetchBookingDetails,
-  fetchMyRentals,
-  fetchMyRequests,
-  checkAvailability,
-  approveBooking,
-  rejectBooking,
-  cancelBooking,
-  startRental,
-  completeRental,
-} from '../../bff/api/booking.api';
+  useProfile,
+  useRegister,
+  useLogin,
+  useUpdateProfile,
+  useRefreshToken,
+  useLogout,
+  useForgotPassword,
+  useResetPassword,
+  useChangePassword,
+} from '../../bff/queries/user.queries';
 import styles from './ApiTesting.module.css';
 
 const ApiTesting = () => {
@@ -73,6 +63,17 @@ const ApiTesting = () => {
   const cancelBookingMutation = useCancelBooking();
   const startRentalMutation = useStartRental();
   const completeRentalMutation = useCompleteRental();
+  
+  // Auth query and mutation hooks
+  const profileQuery = useProfile();
+  const registerMutation = useRegister();
+  const loginMutation = useLogin();
+  const updateProfileMutation = useUpdateProfile();
+  const refreshTokenMutation = useRefreshToken();
+  const logoutMutation = useLogout();
+  const forgotPasswordMutation = useForgotPassword();
+  const resetPasswordMutation = useResetPassword();
+  const changePasswordMutation = useChangePassword();
   
   // State
   const [queryName, setQueryName] = useState('useVehicles');
@@ -241,10 +242,112 @@ const ApiTesting = () => {
       paramsTemplate: '{\n  "bookingId": "booking-id-here"\n}',
       bodyTemplate: '{\n  "ownerVehicleIds": ["vehicle-id-1"],\n  "finalPrice": 250\n}',
     },
+    useRegister: {
+      mutation: registerMutation,
+      description: 'POST /auth/register - Register new user account',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{\n  "firstName": "John",\n  "lastName": "Doe",\n  "email": "john.doe@example.com",\n  "password": "SecurePass123!",\n  "phoneNumber": "+94771234567"\n}',
+    },
+    useLogin: {
+      mutation: loginMutation,
+      description: 'POST /auth/login - Login user',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{\n  "email": "admin@gmail.com",\n  "password": "admin1"\n}',
+    },
+    useProfile: {
+      query: profileQuery,
+      description: 'GET /auth/me - Get current user profile (requires auth)',
+      requiresBody: false,
+      requiresParams: false,
+      isMutation: false,
+    },
+    useUpdateProfile: {
+      mutation: updateProfileMutation,
+      description: 'PUT /auth/profile - Update user profile (requires auth)',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{\n  "firstName": "John",\n  "lastName": "Smith",\n  "phoneNumber": "+94771234567",\n  "address": "123 Main St, Colombo"\n}',
+    },
+    useRefreshToken: {
+      mutation: refreshTokenMutation,
+      description: 'POST /auth/refresh-token - Refresh authentication token',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{\n  "refreshToken": "your-refresh-token-here"\n}',
+    },
+    useLogout: {
+      mutation: logoutMutation,
+      description: 'POST /auth/logout - Logout user (requires auth)',
+      requiresBody: false,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{}',
+    },
+    useForgotPassword: {
+      mutation: forgotPasswordMutation,
+      description: 'POST /auth/forgot-password - Send password reset email',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{\n  "email": "john.doe@example.com"\n}',
+    },
+    useResetPassword: {
+      mutation: resetPasswordMutation,
+      description: 'POST /auth/reset-password - Reset password with token',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{\n  "token": "reset-token-from-email",\n  "newPassword": "NewSecurePass123!"\n}',
+    },
+    useChangePassword: {
+      mutation: changePasswordMutation,
+      description: 'POST /auth/change-password - Change password (requires auth)',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{\n  "currentPassword": "OldPassword123!",\n  "newPassword": "NewSecurePass123!"\n}',
+    },
   };
 
   const availableQueries = Object.keys(queryRegistry);
   const selectedQuery = queryRegistry[queryName];
+
+  // Group queries by service (robust, case-insensitive)
+  const vehicleKeywords = ['vehicle', 'vehicles', 'listing', 'listings'];
+  const bookingKeywords = ['booking', 'bookings', 'rental', 'rentals', 'request', 'requests', 'availability', 'approve', 'reject', 'start', 'complete', 'cancel'];
+  const authKeywords = ['auth', 'login', 'register', 'profile', 'password', 'logout', 'refresh', 'forgot', 'reset', 'change'];
+
+  const vehicleQueries: string[] = [];
+  const bookingQueries: string[] = [];
+  const authQueries: string[] = [];
+  const otherQueries: string[] = [];
+
+  availableQueries.forEach((q) => {
+    const key = q.toLowerCase();
+    if (vehicleKeywords.some((k) => key.includes(k))) {
+      vehicleQueries.push(q);
+    } else if (bookingKeywords.some((k) => key.includes(k))) {
+      bookingQueries.push(q);
+    } else if (authKeywords.some((k) => key.includes(k))) {
+      authQueries.push(q);
+    } else {
+      otherQueries.push(q);
+    }
+  });
+
+  console.log('Query counts:', {
+    total: availableQueries.length,
+    vehicle: vehicleQueries.length,
+    booking: bookingQueries.length,
+    auth: authQueries.length,
+    other: otherQueries.length
+  });
 
   const handleQuerySelect = (name: string) => {
     setQueryName(name);
@@ -291,11 +394,11 @@ const ApiTesting = () => {
         }
 
         const parsedBody = requestBody.trim() ? JSON.parse(requestBody) : {};
+        const params = queryParams.trim() ? JSON.parse(queryParams) : {};
 
         if (queryName === 'useCreateVehicle') {
-          data = await createVehicle(parsedBody);
+          data = await createVehicleMutation.mutateAsync(parsedBody);
         } else if (queryName === 'useUpdateVehicle') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
           const vehicleId = params.vehicleId;
           if (!vehicleId) {
             setResponse({
@@ -306,9 +409,8 @@ const ApiTesting = () => {
             });
             return;
           }
-          data = await updateVehicle(vehicleId, parsedBody);
+          data = await updateVehicleMutation.mutateAsync({ vehicleId, ...parsedBody });
         } else if (queryName === 'useUpdateVehicleStatus') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
           const vehicleId = params.vehicleId;
           if (!vehicleId) {
             setResponse({
@@ -319,9 +421,8 @@ const ApiTesting = () => {
             });
             return;
           }
-          data = await updateVehicleStatus(vehicleId, parsedBody);
+          data = await updateVehicleStatusMutation.mutateAsync({ vehicleId, ...parsedBody });
         } else if (queryName === 'useRemoveVehicle') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
           const vehicleId = params.vehicleId;
           if (!vehicleId) {
             setResponse({
@@ -332,11 +433,10 @@ const ApiTesting = () => {
             });
             return;
           }
-          data = await removeVehicle(vehicleId, parsedBody);
+          data = await removeVehicleMutation.mutateAsync({ vehicleId, ...parsedBody });
         } else if (queryName === 'useCreateBooking') {
-          data = await createBooking(parsedBody);
+          data = await createBookingMutation.mutateAsync(parsedBody);
         } else if (queryName === 'useApproveBooking') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
           const bookingId = params.bookingId;
           if (!bookingId) {
             setResponse({
@@ -347,9 +447,8 @@ const ApiTesting = () => {
             });
             return;
           }
-          data = await approveBooking(bookingId, parsedBody);
+          data = await approveBookingMutation.mutateAsync({ bookingId, ...parsedBody });
         } else if (queryName === 'useRejectBooking') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
           const bookingId = params.bookingId;
           if (!bookingId) {
             setResponse({
@@ -360,9 +459,8 @@ const ApiTesting = () => {
             });
             return;
           }
-          data = await rejectBooking(bookingId, parsedBody);
+          data = await rejectBookingMutation.mutateAsync({ bookingId, ...parsedBody });
         } else if (queryName === 'useCancelBooking') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
           const bookingId = params.bookingId;
           if (!bookingId) {
             setResponse({
@@ -373,9 +471,8 @@ const ApiTesting = () => {
             });
             return;
           }
-          data = await cancelBooking(bookingId);
+          data = await cancelBookingMutation.mutateAsync(bookingId);
         } else if (queryName === 'useStartRental') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
           const bookingId = params.bookingId;
           if (!bookingId) {
             setResponse({
@@ -386,9 +483,8 @@ const ApiTesting = () => {
             });
             return;
           }
-          data = await startRental(bookingId, parsedBody);
+          data = await startRentalMutation.mutateAsync({ bookingId, ...parsedBody });
         } else if (queryName === 'useCompleteRental') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
           const bookingId = params.bookingId;
           if (!bookingId) {
             setResponse({
@@ -399,7 +495,23 @@ const ApiTesting = () => {
             });
             return;
           }
-          data = await completeRental(bookingId, parsedBody);
+          data = await completeRentalMutation.mutateAsync({ bookingId, ...parsedBody });
+        } else if (queryName === 'useRegister') {
+          data = await registerMutation.mutateAsync(parsedBody);
+        } else if (queryName === 'useLogin') {
+          data = await loginMutation.mutateAsync(parsedBody);
+        } else if (queryName === 'useUpdateProfile') {
+          data = await updateProfileMutation.mutateAsync(parsedBody);
+        } else if (queryName === 'useRefreshToken') {
+          data = await refreshTokenMutation.mutateAsync(parsedBody.refreshToken);
+        } else if (queryName === 'useLogout') {
+          data = await logoutMutation.mutateAsync();
+        } else if (queryName === 'useForgotPassword') {
+          data = await forgotPasswordMutation.mutateAsync(parsedBody.email);
+        } else if (queryName === 'useResetPassword') {
+          data = await resetPasswordMutation.mutateAsync(parsedBody);
+        } else if (queryName === 'useChangePassword') {
+          data = await changePasswordMutation.mutateAsync(parsedBody);
         } else {
           // Fallback to mutateAsync
           data = await selectedQuery.mutation.mutateAsync(parsedBody);
@@ -413,69 +525,9 @@ const ApiTesting = () => {
           duration,
         });
       } else {
-        // For queries, call API functions directly to support dynamic params
-        if (queryName === 'useVehicles') {
-          data = await fetchVehicles();
-        } else if (queryName === 'useVehicleById') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
-          const vehicleId = params.vehicleId || '215e9c09-532e-4d87-bff6-e972900ef40e';
-          data = await fetchVehicleById(vehicleId);
-        } else if (queryName === 'useMyListings') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
-          const page = params.page || 1;
-          const limit = params.limit || 10;
-          data = await fetchMyListings(page, limit);
-        } else if (queryName === 'useBookingDetails') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
-          const bookingId = params.bookingId;
-          if (!bookingId) {
-            setResponse({
-              status: 'error',
-              error: 'bookingId is required in query parameters',
-              timestamp: new Date().toLocaleTimeString(),
-              duration: 0,
-            });
-            return;
-          }
-          data = await fetchBookingDetails(bookingId);
-        } else if (queryName === 'useMyRentals') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
-          const status = params.status;
-          const page = params.page || 1;
-          const limit = params.limit || 10;
-          data = await fetchMyRentals(status, page, limit);
-        } else if (queryName === 'useMyRequests') {
-          if (!requestBody.trim()) {
-            setResponse({
-              status: 'error',
-              error: 'Request body is required for my-requests',
-              timestamp: new Date().toLocaleTimeString(),
-              duration: 0,
-            });
-            return;
-          }
-          const parsedBody = JSON.parse(requestBody);
-          data = await fetchMyRequests(parsedBody);
-        } else if (queryName === 'useAvailability') {
-          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
-          const vehicleId = params.vehicleId;
-          const startDate = params.startDate;
-          const endDate = params.endDate;
-          if (!vehicleId || !startDate || !endDate) {
-            setResponse({
-              status: 'error',
-              error: 'vehicleId, startDate, and endDate are required in query parameters',
-              timestamp: new Date().toLocaleTimeString(),
-              duration: 0,
-            });
-            return;
-          }
-          data = await checkAvailability(vehicleId, startDate, endDate);
-        } else {
-          // Fallback to refetch for other queries
-          const result = await selectedQuery.query.refetch();
-          data = result.data;
-        }
+        // For queries, use refetch method
+        const result = await selectedQuery.query.refetch();
+        data = result.data;
         
         const duration = Math.round(performance.now() - startTime);
         setResponse({
@@ -559,18 +611,72 @@ const ApiTesting = () => {
           )}
 
           <div className={styles.availableQueries}>
-            <label>Available Queries</label>
-            <div className={styles.queryList}>
-              {availableQueries.map((name) => (
-                <button
-                  key={name}
-                  onClick={() => handleQuerySelect(name)}
-                  className={`${styles.queryTag} ${queryName === name ? styles.active : ''}`}
-                >
-                  {name}
-                </button>
-              ))}
+            <label>Available Queries ({availableQueries.length})</label>
+            
+            {/* Vehicle Service Queries */}
+            <div className={styles.serviceGroup}>
+              <h3 className={styles.serviceTitle}>🚗 Vehicle Service</h3>
+              <div className={styles.queryList}>
+                {vehicleQueries.map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => handleQuerySelect(name)}
+                    className={`${styles.queryTag} ${queryName === name ? styles.active : ''}`}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* Booking Service Queries */}
+            <div className={styles.serviceGroup}>
+              <h3 className={styles.serviceTitle}>📅 Booking Service</h3>
+              <div className={styles.queryList}>
+                {bookingQueries.map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => handleQuerySelect(name)}
+                    className={`${styles.queryTag} ${queryName === name ? styles.active : ''}`}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Auth Service Queries */}
+            <div className={styles.serviceGroup}>
+              <h3 className={styles.serviceTitle}>🔐 Auth Service</h3>
+              <div className={styles.queryList}>
+                {authQueries.map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => handleQuerySelect(name)}
+                    className={`${styles.queryTag} ${queryName === name ? styles.active : ''}`}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/** Other / Unmatched queries */}
+            {otherQueries && otherQueries.length > 0 && (
+              <div className={styles.serviceGroup}>
+                <h3 className={styles.serviceTitle}>🔎 Other</h3>
+                <div className={styles.queryList}>
+                  {otherQueries.map((name) => (
+                    <button
+                      key={name}
+                      onClick={() => handleQuerySelect(name)}
+                      className={`${styles.queryTag} ${queryName === name ? styles.active : ''}`}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.inputGroup}>
