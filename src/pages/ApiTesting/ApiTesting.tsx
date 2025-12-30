@@ -16,6 +16,17 @@ import {
   useRemoveVehicle
 } from '../../bff/queries/vehicle.queries';
 import {
+  useBookingDetails,
+  useMyRentals,
+  useAvailability,
+  useCreateBooking,
+  useApproveBooking,
+  useRejectBooking,
+  useCancelBooking,
+  useStartRental,
+  useCompleteRental,
+} from '../../bff/queries/booking.queries';
+import {
   fetchVehicles,
   fetchVehicleById,
   fetchMyListings,
@@ -24,9 +35,18 @@ import {
   updateVehicleStatus,
   removeVehicle,
 } from '../../bff/api/vehicle.api';
-// Import more query hooks as you create them:
-// import { useLogin, useRegister } from '../../bff/queries/user.queries';
-// import { useBookings, useCreateBooking } from '../../bff/queries/booking.queries';
+import {
+  createBooking,
+  fetchBookingDetails,
+  fetchMyRentals,
+  fetchMyRequests,
+  checkAvailability,
+  approveBooking,
+  rejectBooking,
+  cancelBooking,
+  startRental,
+  completeRental,
+} from '../../bff/api/booking.api';
 import styles from './ApiTesting.module.css';
 
 const ApiTesting = () => {
@@ -35,11 +55,24 @@ const ApiTesting = () => {
   const vehicleByIdQuery = useVehicleById("");
   const myListingsQuery = useMyListings(1, 10);
   
+  // Booking query hooks
+  const bookingDetailsQuery = useBookingDetails("");
+  const myRentalsQuery = useMyRentals(undefined, 1, 10);
+  const availabilityQuery = useAvailability("", "", "");
+  
   // Mutation hooks
   const createVehicleMutation = useCreateVehicle();
   const updateVehicleMutation = useUpdateVehicle();
   const updateVehicleStatusMutation = useUpdateVehicleStatus();
   const removeVehicleMutation = useRemoveVehicle();
+  
+  // Booking mutation hooks
+  const createBookingMutation = useCreateBooking();
+  const approveBookingMutation = useApproveBooking();
+  const rejectBookingMutation = useRejectBooking();
+  const cancelBookingMutation = useCancelBooking();
+  const startRentalMutation = useStartRental();
+  const completeRentalMutation = useCompleteRental();
   
   // State
   const [queryName, setQueryName] = useState('useVehicles');
@@ -124,6 +157,90 @@ const ApiTesting = () => {
       paramsTemplate: '{\n  "vehicleId": "vehicle-id-here"\n}',
       bodyTemplate: '{\n  "reason": "No longer available"\n}',
     },
+    useCreateBooking: {
+      mutation: createBookingMutation,
+      description: 'POST /bookings - Create a new booking (requires auth)',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: true,
+      bodyTemplate: '{\n  "vehicleId": "vehicle-id-here",\n  "startDate": "2025-01-15T10:00:00Z",\n  "endDate": "2025-01-20T10:00:00Z"\n}',
+    },
+    useBookingDetails: {
+      query: bookingDetailsQuery,
+      description: 'GET /bookings/{id} - Fetch booking details (requires auth)',
+      requiresBody: false,
+      requiresParams: true,
+      paramsTemplate: '{\n  "bookingId": "booking-id-here"\n}',
+      isMutation: false,
+    },
+    useMyRentals: {
+      query: myRentalsQuery,
+      description: 'GET /bookings/my-rentals - Fetch user\'s rentals (requires auth)',
+      requiresBody: false,
+      requiresParams: true,
+      paramsTemplate: '{\n  "status": "active",\n  "page": 1,\n  "limit": 10\n}',
+      isMutation: false,
+    },
+    useMyRequests: {
+      query: myRentalsQuery,
+      description: 'POST /bookings/my-requests - Fetch booking requests for owner (requires auth)',
+      requiresBody: true,
+      requiresParams: false,
+      isMutation: false,
+      bodyTemplate: '{\n  "ownerVehicleIds": ["vehicle-id-1", "vehicle-id-2"]\n}',
+    },
+    useAvailability: {
+      query: availabilityQuery,
+      description: 'GET /bookings/availability/{vehicleId} - Check vehicle availability',
+      requiresBody: false,
+      requiresParams: true,
+      paramsTemplate: '{\n  "vehicleId": "vehicle-id-here",\n  "startDate": "2025-01-15T10:00:00Z",\n  "endDate": "2025-01-20T10:00:00Z"\n}',
+      isMutation: false,
+    },
+    useApproveBooking: {
+      mutation: approveBookingMutation,
+      description: 'PATCH /bookings/{id}/approve - Approve a booking (requires auth)',
+      requiresBody: true,
+      requiresParams: true,
+      isMutation: true,
+      paramsTemplate: '{\n  "bookingId": "booking-id-here"\n}',
+      bodyTemplate: '{\n  "ownerVehicleIds": ["vehicle-id-1"]\n}',
+    },
+    useRejectBooking: {
+      mutation: rejectBookingMutation,
+      description: 'PATCH /bookings/{id}/reject - Reject a booking (requires auth)',
+      requiresBody: true,
+      requiresParams: true,
+      isMutation: true,
+      paramsTemplate: '{\n  "bookingId": "booking-id-here"\n}',
+      bodyTemplate: '{\n  "reason": "Vehicle not available",\n  "ownerVehicleIds": ["vehicle-id-1"]\n}',
+    },
+    useCancelBooking: {
+      mutation: cancelBookingMutation,
+      description: 'PATCH /bookings/{id}/cancel - Cancel a booking (requires auth)',
+      requiresBody: false,
+      requiresParams: true,
+      isMutation: true,
+      paramsTemplate: '{\n  "bookingId": "booking-id-here"\n}',
+    },
+    useStartRental: {
+      mutation: startRentalMutation,
+      description: 'PATCH /bookings/{id}/start - Start a rental (requires auth)',
+      requiresBody: true,
+      requiresParams: true,
+      isMutation: true,
+      paramsTemplate: '{\n  "bookingId": "booking-id-here"\n}',
+      bodyTemplate: '{\n  "ownerVehicleIds": ["vehicle-id-1"]\n}',
+    },
+    useCompleteRental: {
+      mutation: completeRentalMutation,
+      description: 'PATCH /bookings/{id}/complete - Complete a rental (requires auth)',
+      requiresBody: true,
+      requiresParams: true,
+      isMutation: true,
+      paramsTemplate: '{\n  "bookingId": "booking-id-here"\n}',
+      bodyTemplate: '{\n  "ownerVehicleIds": ["vehicle-id-1"],\n  "finalPrice": 250\n}',
+    },
   };
 
   const availableQueries = Object.keys(queryRegistry);
@@ -163,7 +280,7 @@ const ApiTesting = () => {
       
       if (selectedQuery.isMutation) {
         // For mutations, parse request body and call API functions directly
-        if (!requestBody.trim()) {
+        if (selectedQuery.requiresBody && !requestBody.trim()) {
           setResponse({
             status: 'error',
             error: 'Request body is required for mutations',
@@ -173,7 +290,7 @@ const ApiTesting = () => {
           return;
         }
 
-        const parsedBody = JSON.parse(requestBody);
+        const parsedBody = requestBody.trim() ? JSON.parse(requestBody) : {};
 
         if (queryName === 'useCreateVehicle') {
           data = await createVehicle(parsedBody);
@@ -216,6 +333,73 @@ const ApiTesting = () => {
             return;
           }
           data = await removeVehicle(vehicleId, parsedBody);
+        } else if (queryName === 'useCreateBooking') {
+          data = await createBooking(parsedBody);
+        } else if (queryName === 'useApproveBooking') {
+          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
+          const bookingId = params.bookingId;
+          if (!bookingId) {
+            setResponse({
+              status: 'error',
+              error: 'bookingId is required in query parameters',
+              timestamp: new Date().toLocaleTimeString(),
+              duration: 0,
+            });
+            return;
+          }
+          data = await approveBooking(bookingId, parsedBody);
+        } else if (queryName === 'useRejectBooking') {
+          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
+          const bookingId = params.bookingId;
+          if (!bookingId) {
+            setResponse({
+              status: 'error',
+              error: 'bookingId is required in query parameters',
+              timestamp: new Date().toLocaleTimeString(),
+              duration: 0,
+            });
+            return;
+          }
+          data = await rejectBooking(bookingId, parsedBody);
+        } else if (queryName === 'useCancelBooking') {
+          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
+          const bookingId = params.bookingId;
+          if (!bookingId) {
+            setResponse({
+              status: 'error',
+              error: 'bookingId is required in query parameters',
+              timestamp: new Date().toLocaleTimeString(),
+              duration: 0,
+            });
+            return;
+          }
+          data = await cancelBooking(bookingId);
+        } else if (queryName === 'useStartRental') {
+          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
+          const bookingId = params.bookingId;
+          if (!bookingId) {
+            setResponse({
+              status: 'error',
+              error: 'bookingId is required in query parameters',
+              timestamp: new Date().toLocaleTimeString(),
+              duration: 0,
+            });
+            return;
+          }
+          data = await startRental(bookingId, parsedBody);
+        } else if (queryName === 'useCompleteRental') {
+          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
+          const bookingId = params.bookingId;
+          if (!bookingId) {
+            setResponse({
+              status: 'error',
+              error: 'bookingId is required in query parameters',
+              timestamp: new Date().toLocaleTimeString(),
+              duration: 0,
+            });
+            return;
+          }
+          data = await completeRental(bookingId, parsedBody);
         } else {
           // Fallback to mutateAsync
           data = await selectedQuery.mutation.mutateAsync(parsedBody);
@@ -241,6 +425,52 @@ const ApiTesting = () => {
           const page = params.page || 1;
           const limit = params.limit || 10;
           data = await fetchMyListings(page, limit);
+        } else if (queryName === 'useBookingDetails') {
+          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
+          const bookingId = params.bookingId;
+          if (!bookingId) {
+            setResponse({
+              status: 'error',
+              error: 'bookingId is required in query parameters',
+              timestamp: new Date().toLocaleTimeString(),
+              duration: 0,
+            });
+            return;
+          }
+          data = await fetchBookingDetails(bookingId);
+        } else if (queryName === 'useMyRentals') {
+          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
+          const status = params.status;
+          const page = params.page || 1;
+          const limit = params.limit || 10;
+          data = await fetchMyRentals(status, page, limit);
+        } else if (queryName === 'useMyRequests') {
+          if (!requestBody.trim()) {
+            setResponse({
+              status: 'error',
+              error: 'Request body is required for my-requests',
+              timestamp: new Date().toLocaleTimeString(),
+              duration: 0,
+            });
+            return;
+          }
+          const parsedBody = JSON.parse(requestBody);
+          data = await fetchMyRequests(parsedBody);
+        } else if (queryName === 'useAvailability') {
+          const params = queryParams.trim() ? JSON.parse(queryParams) : {};
+          const vehicleId = params.vehicleId;
+          const startDate = params.startDate;
+          const endDate = params.endDate;
+          if (!vehicleId || !startDate || !endDate) {
+            setResponse({
+              status: 'error',
+              error: 'vehicleId, startDate, and endDate are required in query parameters',
+              timestamp: new Date().toLocaleTimeString(),
+              duration: 0,
+            });
+            return;
+          }
+          data = await checkAvailability(vehicleId, startDate, endDate);
         } else {
           // Fallback to refetch for other queries
           const result = await selectedQuery.query.refetch();
