@@ -1,4 +1,4 @@
-// user.api.ts - Auth API functions
+// user.api.ts - Auth API functions (pure - no token handling)
 import { httpAuth } from './http';
 
 // Register new user
@@ -13,7 +13,7 @@ export const register = async (userData: {
   return response.data;
 };
 
-// Login user
+// Login user - tokens are set as HttpOnly cookies by backend
 export const login = async (credentials: {
   email: string;
   password: string;
@@ -39,13 +39,13 @@ export const updateProfile = async (profileData: {
   return response.data;
 };
 
-// Refresh authentication token
-export const refreshToken = async (refreshToken: string) => {
-  const response = await httpAuth.post('/auth/refresh', { refreshToken });
+// Refresh token - uses HttpOnly cookie, no params needed
+export const refreshToken = async () => {
+  const response = await httpAuth.post('/auth/refresh');
   return response.data;
 };
 
-// Logout user
+// Logout user - clears HttpOnly cookies
 export const logout = async () => {
   const response = await httpAuth.post('/auth/logout');
   return response.data;

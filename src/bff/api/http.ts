@@ -1,139 +1,118 @@
 // api/http.ts
-import axios from "axios";
-import { TokenManager } from '../../utils/tokenManager';
+// Secure cookie-based authentication - no JS token handling
+import axios, { type AxiosInstance, type AxiosError } from "axios";
 
+// Flag to prevent multiple simultaneous refresh requests
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
 
-// HTTP client for Vehicle API
-const VEHICLE_BASE_URL = (import.meta.env.VITE_VEHICLE_API_BASE_URL as string);
-
-export const httpVehicle = axios.create({
-  baseURL: VEHICLE_BASE_URL,
-});
-
-// Add request interceptor to attach fresh token on each request
-httpVehicle.interceptors.request.use(
-  (config) => {
-    const token = TokenManager.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+const processQueue = (error: Error | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  });
+  failedQueue = [];
+};
 
-// Add response interceptor to properly handle errors
-httpVehicle.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // If we have a response from the server, attach it to the error
-    if (error.response) {
-      // Extract the server's error message/data
-      const serverError = error.response.data;
-      
-      // Create a more descriptive error message
-      const errorMessage = serverError?.message || 
-                          serverError?.error || 
-                          serverError?.title ||
-                          `Request failed with status code ${error.response.status}`;
-      
-      // Attach the full server response for debugging
-      error.message = errorMessage;
-      error.serverResponse = serverError;
-      error.statusCode = error.response.status;
+// Response interceptor for automatic token refresh via HttpOnly cookies
+const createResponseErrorInterceptor = (client: AxiosInstance, _serviceName: string) => async (error: AxiosError) => {
+  const originalRequest: any = error.config;
+
+  // If 401 error and not already retrying
+  if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't try to refresh for login/register endpoints
+    if (originalRequest.url?.includes('/login') || originalRequest.url?.includes('/register')) {
+      return Promise.reject(error);
     }
-    
-    return Promise.reject(error);
+
+    originalRequest._retry = true;
+
+    if (isRefreshing) {
+      // Queue this request while refresh is in progress
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      }).then(() => client(originalRequest))
+        .catch(err => Promise.reject(err));
+    }
+
+    isRefreshing = true;
+
+    try {
+      // Refresh uses HttpOnly cookies - no token in body
+      await axios.post(
+        `${import.meta.env.VITE_AUTH_API_BASE_URL}/auth/refresh`,
+        {},
+        { withCredentials: true }
+      );
+
+      processQueue(null);
+      isRefreshing = false;
+
+      // Retry original request - cookies are automatically sent
+      return client(originalRequest);
+    } catch (refreshError: any) {
+      processQueue(refreshError);
+      isRefreshing = false;
+
+      // Don't redirect if on api-testing page
+      if (!window.location.pathname.includes('/api-testing')) {
+        window.location.href = '/login';
+      }
+
+      return Promise.reject(refreshError);
+    }
   }
-);
 
+  // Format error response for consistent handling
+  if (error.response) {
+    const serverError: any = error.response.data;
+    (error as any).message = serverError?.message || serverError?.error || serverError?.title || `Request failed with status code ${error.response.status}`;
+    (error as any).serverResponse = serverError;
+    (error as any).statusCode = error.response.status;
+  } else if (error.request) {
+    (error as any).message = 'Network error - Unable to reach server';
+    (error as any).statusCode = 0;
+    (error as any).serverResponse = null;
+  } else {
+    (error as any).message = error.message || 'An unexpected error occurred';
+    (error as any).statusCode = 0;
+    (error as any).serverResponse = null;
+  }
 
+  return Promise.reject(error);
+};
 
-// HTTP client for Booking API
-const BOOKING_BASE_URL = (import.meta.env.VITE_BOOKING_API_BASE_URL as string);
+// Helper to setup interceptors
+const setupInterceptors = (client: AxiosInstance, serviceName: string) => {
+  client.interceptors.response.use(
+    (response) => response,
+    createResponseErrorInterceptor(client, serviceName)
+  );
+};
+
+// Create HTTP clients with credentials (cookies sent automatically)
+export const httpVehicle = axios.create({
+  baseURL: import.meta.env.VITE_VEHICLE_API_BASE_URL as string,
+  withCredentials: true, // Send/receive HttpOnly cookies
+});
 
 export const httpBooking = axios.create({
-  baseURL: BOOKING_BASE_URL,
+  baseURL: import.meta.env.VITE_BOOKING_API_BASE_URL as string,
+  withCredentials: true,
 });
-
-// Add request interceptor to attach fresh token on each request
-httpBooking.interceptors.request.use(
-  (config) => {
-    const token = TokenManager.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Add response interceptor to properly handle errors
-httpBooking.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // If we have a response from the server, attach it to the error
-    if (error.response) {
-      // Extract the server's error message/data
-      const serverError = error.response.data;
-      
-      // Create a more descriptive error message
-      const errorMessage = serverError?.message || 
-                          serverError?.error || 
-                          serverError?.title ||
-                          `Request failed with status code ${error.response.status}`;
-      
-      // Attach the full server response for debugging
-      error.message = errorMessage;
-      error.serverResponse = serverError;
-      error.statusCode = error.response.status;
-    }
-    
-    return Promise.reject(error);
-  }
-);
-
-
-// HTTP client for Auth API
-const AUTH_BASE_URL = (import.meta.env.VITE_AUTH_API_BASE_URL as string);
 
 export const httpAuth = axios.create({
-  baseURL: AUTH_BASE_URL,
+  baseURL: import.meta.env.VITE_AUTH_API_BASE_URL as string,
+  withCredentials: true,
 });
 
-// Add request interceptor to attach fresh token on each request
-httpAuth.interceptors.request.use(
-  (config) => {
-    const token = TokenManager.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Add response interceptor to properly handle errors
-httpAuth.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // If we have a response from the server, attach it to the error
-    if (error.response) {
-      // Extract the server's error message/data
-      const serverError = error.response.data;
-      
-      // Create a more descriptive error message
-      const errorMessage = serverError?.message || 
-                          serverError?.error || 
-                          serverError?.title ||
-                          `Request failed with status code ${error.response.status}`;
-      
-      // Attach the full server response for debugging
-      error.message = errorMessage;
-      error.serverResponse = serverError;
-      error.statusCode = error.response.status;
-    }
-    
-    return Promise.reject(error);
-  }
-);
+// Setup interceptors for all clients
+setupInterceptors(httpVehicle, 'Vehicle Service');
+setupInterceptors(httpBooking, 'Booking Service');
+setupInterceptors(httpAuth, 'Auth Service');

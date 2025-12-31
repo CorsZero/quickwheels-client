@@ -256,7 +256,7 @@ const ApiTesting = () => {
       requiresBody: true,
       requiresParams: false,
       isMutation: true,
-      bodyTemplate: '{\n  "email": "admin@gmail.com",\n  "password": "admin1"\n}',
+      bodyTemplate: '{\n  "email": "admin",\n  "password": "admin1"\n}',
     },
     useProfile: {
       query: profileQuery,
@@ -275,11 +275,10 @@ const ApiTesting = () => {
     },
     useRefreshToken: {
       mutation: refreshTokenMutation,
-      description: 'POST /auth/refresh-token - Refresh authentication token',
-      requiresBody: true,
+      description: 'POST /auth/refresh - Refresh authentication token (uses HttpOnly cookies)',
+      requiresBody: false,
       requiresParams: false,
       isMutation: true,
-      bodyTemplate: '{\n  "refreshToken": "your-refresh-token-here"\n}',
     },
     useLogout: {
       mutation: logoutMutation,
@@ -503,7 +502,7 @@ const ApiTesting = () => {
         } else if (queryName === 'useUpdateProfile') {
           data = await updateProfileMutation.mutateAsync(parsedBody);
         } else if (queryName === 'useRefreshToken') {
-          data = await refreshTokenMutation.mutateAsync(parsedBody.refreshToken);
+          data = await refreshTokenMutation.mutateAsync();
         } else if (queryName === 'useLogout') {
           data = await logoutMutation.mutateAsync();
         } else if (queryName === 'useForgotPassword') {

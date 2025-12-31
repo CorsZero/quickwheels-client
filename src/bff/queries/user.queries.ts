@@ -1,6 +1,6 @@
 // user.queries.ts - TanStack Query hooks for auth operations
+// No token handling - cookies are managed by browser + backend
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { TokenManager } from '../../utils/tokenManager';
 import {
   register,
   login,
@@ -13,12 +13,15 @@ import {
   changePassword,
 } from '../api/user.api';
 
-// Query: Get current user profile
+// Query: Get current user profile - THIS IS THE AUTH SOURCE OF TRUTH
+// If profile loads → authenticated
+// If 401 → not authenticated
 export const useProfile = () => {
   return useQuery({
     queryKey: ['profile'],
     queryFn: getProfile,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry on auth errors
   });
 };
 
@@ -28,13 +31,8 @@ export const useRegister = () => {
   
   return useMutation({
     mutationFn: register,
-    onSuccess: (data) => {
-      // Store token if returned (handle nested response)
-      const token = data?.data?.token || data?.token;
-      if (token) {
-        TokenManager.setToken(token);
-      }
-      // Invalidate profile to fetch new user data
+    onSuccess: () => {
+      // Cookies are set by backend - just refetch profile
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
@@ -46,13 +44,8 @@ export const useLogin = () => {
   
   return useMutation({
     mutationFn: login,
-    onSuccess: (data) => {
-      // Store token (handle nested response)
-      const token = data.data.accessToken;
-      if (token) {
-        TokenManager.setToken(token);
-      }
-      // Invalidate profile to fetch logged-in user data
+    onSuccess: () => {
+      // Cookies are set by backend - just refetch profile
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
@@ -65,26 +58,15 @@ export const useUpdateProfile = () => {
   return useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
-      // Invalidate profile to refetch updated data
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
   });
 };
 
-// Mutation: Refresh token
+// Mutation: Refresh token (rarely called manually - interceptor handles it)
 export const useRefreshToken = () => {
-  const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: refreshToken,
-    onSuccess: (data) => {
-      // Update stored token (handle nested response)
-      const token = data?.data?.token || data?.token;
-      if (token) {
-        TokenManager.setToken(token);
-      }
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-    },
   });
 };
 
@@ -95,9 +77,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      // Clear token
-      TokenManager.removeToken();
-      // Clear all cached data
+      // Backend clears cookies - clear all cached data
       queryClient.clear();
     },
   });
