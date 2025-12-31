@@ -26,6 +26,12 @@ export const useMyRentals = (status?: string, page: number = 1, limit: number = 
     queryFn: () => fetchMyRentals(status, page, limit),
   });
 
+export const useMyRequests = (requestData: any) =>
+  useQuery({
+    queryKey: ["myRequests"],
+    queryFn: () => fetchMyRequests(requestData),
+  });
+
 export const useAvailability = (vehicleId: string, startDate: string, endDate: string) =>
   useQuery({
     queryKey: ["availability", vehicleId, startDate, endDate],
@@ -40,6 +46,7 @@ export const useCreateBooking = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myRentals"] });
       queryClient.invalidateQueries({ queryKey: ["availability"] });
+      queryClient.invalidateQueries({ queryKey: ["myRequests"] });
     },
   });
 };
@@ -52,6 +59,7 @@ export const useApproveBooking = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["booking", variables.bookingId] });
       queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+      queryClient.invalidateQueries({ queryKey: ["myRequests"] });
     },
   });
 };
@@ -64,6 +72,7 @@ export const useRejectBooking = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["booking", variables.bookingId] });
       queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+      queryClient.invalidateQueries({ queryKey: ["myRequests"] });
     },
   });
 };
@@ -74,6 +83,7 @@ export const useCancelBooking = () => {
     mutationFn: (bookingId: string) => cancelBooking(bookingId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+      queryClient.invalidateQueries({ queryKey: ["myRequests"] });
     },
   });
 };
@@ -86,6 +96,7 @@ export const useStartRental = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["booking", variables.bookingId] });
       queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+      queryClient.invalidateQueries({ queryKey: ["myRequests"] });
     },
   });
 };
@@ -98,6 +109,7 @@ export const useCompleteRental = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["booking", variables.bookingId] });
       queryClient.invalidateQueries({ queryKey: ["myRentals"] });
+      queryClient.invalidateQueries({ queryKey: ["myRequests"] });
     },
   });
 };

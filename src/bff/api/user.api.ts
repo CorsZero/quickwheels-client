@@ -35,7 +35,7 @@ export const updateProfile = async (profileData: {
   phoneNumber?: string;
   address?: string;
 }) => {
-  const response = await httpAuth.put('/auth/profile', profileData);
+  const response = await httpAuth.patch('/auth/profile', profileData);
   return response.data;
 };
 

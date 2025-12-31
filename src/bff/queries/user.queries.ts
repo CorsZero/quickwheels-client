@@ -77,6 +77,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logout,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
       // Backend clears cookies - clear all cached data
       queryClient.clear();
     },
