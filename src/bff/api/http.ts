@@ -61,7 +61,7 @@ const createResponseErrorInterceptor = (client: AxiosInstance, _serviceName: str
       isRefreshing = false;
 
       // Don't redirect if on api-testing page
-      if (!window.location.pathname.includes('/api-testing')) {
+      if (!window.location.pathname.includes('/api-testing')&&!window.location.pathname.includes('/api')) {
         window.location.href = '/login';
       }
 

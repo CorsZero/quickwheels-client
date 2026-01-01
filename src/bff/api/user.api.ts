@@ -3,11 +3,12 @@ import { httpAuth } from './http';
 
 // Register new user
 export const register = async (userData: {
-  firstName: string;
-  lastName: string;
+  fullName?: string;
   email: string;
   password: string;
-  phoneNumber?: string;
+  confirmPassword: string;
+  phone?: string;
+  role?: string;
 }) => {
   const response = await httpAuth.post('/auth/register', userData);
   return response.data;
@@ -30,10 +31,8 @@ export const getProfile = async () => {
 
 // Update user profile
 export const updateProfile = async (profileData: {
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
-  address?: string;
+  FullName?: string;
+  Phone?: string;
 }) => {
   const response = await httpAuth.patch('/auth/profile', profileData);
   return response.data;
@@ -59,8 +58,10 @@ export const forgotPassword = async (email: string) => {
 
 // Reset password with token
 export const resetPassword = async (data: {
+  email: string;
   token: string;
   newPassword: string;
+  confirmPassword: string;
 }) => {
   const response = await httpAuth.post('/auth/reset-password', data);
   return response.data;
@@ -70,6 +71,7 @@ export const resetPassword = async (data: {
 export const changePassword = async (data: {
   currentPassword: string;
   newPassword: string;
+  confirmPassword: string;
 }) => {
   const response = await httpAuth.post('/auth/change-password', data);
   return response.data;
