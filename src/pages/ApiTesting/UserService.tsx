@@ -8,7 +8,7 @@ import {
     useForgotPassword,
     useResetPassword,
     useChangePassword
-} from '../../bff/queries/user.queries';
+} from '../../queries/user.queries';
 import Alert, { type AlertType } from '../../components/Alert/Alert';
 
 

@@ -7,7 +7,7 @@ import {
     useUpdateVehicle,
     useUpdateVehicleStatus,
     useRemoveVehicle
-} from '../../bff/queries/vehicle.queries';
+} from '../../queries/vehicle.queries';
 import Alert, { type AlertType } from '../../components/Alert/Alert';
 
 

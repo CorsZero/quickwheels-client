@@ -10,7 +10,7 @@ import {
     useCancelBooking,
     useStartRental,
     useCompleteRental
-} from '../../bff/queries/booking.queries';
+} from '../../queries/booking.queries';
 import Alert, { type AlertType } from '../../components/Alert/Alert';
 
 
