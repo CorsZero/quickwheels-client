@@ -26,15 +26,9 @@ export const useProfile = () => {
 };
 
 // Mutation: Register new user
-export const useRegister = () => {
-  const queryClient = useQueryClient();
-  
+export const useRegister = () => {  
   return useMutation({
     mutationFn: register,
-    onSuccess: () => {
-      // Cookies are set by backend - just refetch profile
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-    },
   });
 };
 

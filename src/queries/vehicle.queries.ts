@@ -16,12 +16,11 @@ export const useVehicles = () =>
     queryFn: fetchVehicles,
   });
 
-export const useVehicleById = (vehicleId: string) =>
-  useQuery({
-    queryKey: ["vehicle", vehicleId],
-    queryFn: () => fetchVehicleById(vehicleId),
-    enabled: !!vehicleId,
+export const useVehicleById = () => {
+  return useMutation({
+    mutationFn: (vehicleId: string) => fetchVehicleById(vehicleId),
   });
+};
 
 export const useMyListings = (page: number = 1, limit: number = 10) =>
   useQuery({
@@ -56,8 +55,8 @@ export const useUpdateVehicle = () => {
 export const useUpdateVehicleStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ vehicleId, statusData }: { vehicleId: string; statusData: any }) =>
-      updateVehicleStatus(vehicleId, statusData),
+    mutationFn: ({ vehicleId, status }: { vehicleId: string; status: any }) =>
+      updateVehicleStatus(vehicleId, status),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       queryClient.invalidateQueries({ queryKey: ["vehicle", variables.vehicleId] });

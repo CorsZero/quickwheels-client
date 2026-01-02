@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createBooking,
   fetchBookingDetails,
@@ -13,36 +13,37 @@ import {
 } from "../api/booking.api";
 
 // queries/booking.queries.ts
-export const useBookingDetails = (bookingId: string) =>
-  useQuery({
-    queryKey: ["booking", bookingId],
-    queryFn: () => fetchBookingDetails(bookingId),
-    enabled: !!bookingId,
+export const useBookingDetails = () => {
+  return useMutation({
+    mutationFn: (bookingId: string) => fetchBookingDetails(bookingId),
   });
+};
 
-export const useMyRentals = (status?: string, page: number = 1, limit: number = 10) =>
-  useQuery({
-    queryKey: ["myRentals", status, page, limit],
-    queryFn: () => fetchMyRentals(status, page, limit),
+export const useMyRentals = () => {
+  return useMutation({
+    mutationFn: ({ status, page = 1, limit = 10 }: { status?: string; page?: number; limit?: number }) =>
+      fetchMyRentals(status, page, limit),
   });
+};
 
-export const useMyRequests = (requestData: any) =>
-  useQuery({
-    queryKey: ["myRequests"],
-    queryFn: () => fetchMyRequests(requestData),
+export const useMyRequests = () => {
+  return useMutation({
+    mutationFn: (requestData: any) => fetchMyRequests(requestData),
   });
+};
 
-export const useAvailability = (vehicleId: string, startDate: string, endDate: string) =>
-  useQuery({
-    queryKey: ["availability", vehicleId, startDate, endDate],
-    queryFn: () => checkAvailability(vehicleId, startDate, endDate),
-    enabled: !!vehicleId && !!startDate && !!endDate,
+export const useAvailability = () => {
+  return useMutation({
+    mutationFn: ({ vehicleId, startDate, endDate }: { vehicleId: string; startDate: string; endDate: string }) =>
+      checkAvailability(vehicleId, startDate, endDate),
   });
+};
 
 export const useCreateBooking = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createBooking,
+    mutationFn: (bookingData: { vehicleId: string; notes: string; }) =>
+      createBooking(bookingData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myRentals"] });
       queryClient.invalidateQueries({ queryKey: ["availability"] });
