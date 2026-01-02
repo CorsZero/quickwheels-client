@@ -26,8 +26,8 @@ export const updateVehicle = async (vehicleId: string, vehicleData: any) => {
   return res.data;
 };
 
-export const updateVehicleStatus = async (vehicleId: string, statusData: any) => {
-  const res = await httpVehicle.patch(`/vehicles/${vehicleId}/status`, statusData);
+export const updateVehicleStatus = async (vehicleId: string, status: any) => {
+  const res = await httpVehicle.patch(`/vehicles/${vehicleId}/status`, status);
   return res.data;
 };
 

@@ -125,7 +125,7 @@ const UserService = () => {
         );
     };
 
-    const getUserProfile = () => {
+    const GetUserProfile = () => {
         if (!isError) {
             console.log("email :", profile.data.email);
             console.log("fullname :", profile.data.fullName);
@@ -168,7 +168,7 @@ const UserService = () => {
     return (
         <div style={{ padding: '20px' }}>
             <h1>Simple Test Page</h1>
-            <button onClick={LogoutUser}>Click Me</button>
+            <button onClick={LoginUser}>Click Me</button>
 
             {alert.show && (
                 <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1000 }}>
