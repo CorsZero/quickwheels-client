@@ -11,6 +11,8 @@ import {
     useStartRental,
     useCompleteRental
 } from '../../queries/booking.queries';
+import { useVehicleById } from '../../queries/vehicle.queries';
+import { useProfile } from '../../queries/user.queries';
 import Alert, { type AlertType } from '../../components/Alert/Alert';
 
 
@@ -26,6 +28,8 @@ const BookingService = () => {
     const cancelBooking = useCancelBooking();
     const startRental = useStartRental();
     const completeRental = useCompleteRental();
+    const vehicleById = useVehicleById();
+    const { data: profileData } = useProfile();
 
     const [alert, setAlert] = useState<{ show: boolean; message: string; type: AlertType }>({
         show: false,
@@ -101,24 +105,52 @@ const BookingService = () => {
     };
 
     const CreateBooking = () => {
-        createBooking.mutate(
-            {
-                vehicleId: "4da8a377-7de6-435a-87ee-156eaf865183",
-                notes: "Booking notes here"
-            },
-            {
-                onSuccess: (data) => {
-                    console.log('Created Booking:', data.data);
-                    setAlert({ show: true, message: data.message || 'Booking created successfully!', type: 'success' });
-                },
-                onError: (error: any) => {
-                    console.log('Create booking error:', error.response?.data);
-                    setAlert({ show: true, message: error.response?.data?.message || 'Failed to create booking', type: 'error' });
+        const vehicleId = "0c23b2fa-f55c-4d8f-8c45-14bff2bfa65b";
+
+        // First, fetch the vehicle details to get the owner ID
+        vehicleById.mutate(vehicleId, {
+            onSuccess: (vehicleData) => {
+                const vehicleOwnerId = vehicleData.data?.ownerId;
+                const currentUserId = profileData?.data?.id;
+
+                console.log('Vehicle Owner ID:', vehicleOwnerId);
+                console.log('Current User ID:', currentUserId);
+
+                // Check if the current user is the vehicle owner
+                if (vehicleOwnerId === currentUserId) {
+                    setAlert({
+                        show: true,
+                        message: 'You cannot book your own vehicle!',
+                        type: 'error'
+                    });
+                    return;
                 }
+
+                // Proceed with creating the booking if user is not the owner
+                createBooking.mutate(
+                    {
+                        vehicleId: vehicleId,
+                        notes: "Booking notes here"
+                    },
+                    {
+                        onSuccess: (data) => {
+                            console.log('Created Booking:', data.data);
+                            setAlert({ show: true, message: data.message || 'Booking created successfully!', type: 'success' });
+                        },
+                        onError: (error: any) => {
+                            console.log('Create booking error:', error.response?.data);
+                            setAlert({ show: true, message: error.response?.data?.message || 'Failed to create booking', type: 'error' });
+                        }
+                    }
+                );
+            },
+            onError: (error: any) => {
+                console.log('Fetch vehicle error:', error.response?.data);
+                setAlert({ show: true, message: error.response?.data?.message || 'Failed to fetch vehicle details', type: 'error' });
             }
-        );
+        });
     };
-    ``
+
     const ApproveBooking = (bookingId: string) => {
         approveBooking.mutate(
             {

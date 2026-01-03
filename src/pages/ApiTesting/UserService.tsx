@@ -137,7 +137,7 @@ const UserService = () => {
 
     const LoginUser = () => {
         loginMutation.mutate(
-            { email: 'janindupramod@gmail.com', password: '123456' },
+            { email: 'janindu2pramod@gmail.com', password: 'janindu' },
             {
                 onSuccess: (data) => {
                     setAlert({ show: true, message: data.message, type: 'success' });
