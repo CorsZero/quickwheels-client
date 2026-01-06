@@ -7,32 +7,35 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useProfile } from '../../queries/user.queries';
 import { useVehicleService } from '../../services/VehicleService';
-import Alert from '../../components/Alert/Alert';
-import type { CreateAdData, Vehicle } from '../../services/api';
+import type { Vehicle } from '../../services/api';
 import styles from './CreateAd.module.css';
 
 const CreateAd = () => {
   const navigate = useNavigate();
 
-  // Get user from localStorage
-  const userString = localStorage.getItem('currentUser');
-  const isLoggedIn = !!userString;
+  // Check if user is logged in via cookies
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const isLoggedIn = !!profile?.data;
 
   const { CreateVehicle, isPending } = useVehicleService();
+  const isCreating = isPending.createVehicle;
 
-  const [formData, setFormData] = useState<CreateAdData>({
-    title: '',
-    category: 'Cars',
-    image: '',
-    images: [],
-    rentalAmount: 0,
-    description: '',
-    manufacturer: '',
+  const [formData, setFormData] = useState({
+    make: '',
     model: '',
     year: new Date().getFullYear(),
-    deliveryDetails: '',
-    location: ''
+    category: 'Cars',
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 4,
+    pricePerDay: 0,
+    location: '',
+    district: '',
+    description: '',
+    features: [] as string[],
+    images: [] as string[]
   });
 
   const [success, setSuccess] = useState(false);
@@ -45,7 +48,7 @@ const CreateAd = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'rentalAmount' || name === 'year' ? Number(value) : value
+      [name]: name === 'pricePerDay' || name === 'year' || name === 'seats' ? Number(value) : value
     }));
   };
 
@@ -54,8 +57,7 @@ const CreateAd = () => {
     newImages[index] = url;
     setFormData(prev => ({
       ...prev,
-      images: newImages,
-      image: newImages[0] || '' // Set first image as main image
+      images: newImages
     }));
   };
 
@@ -70,8 +72,7 @@ const CreateAd = () => {
     const newImages = formData.images.filter((_, i) => i !== index);
     setFormData(prev => ({
       ...prev,
-      images: newImages,
-      image: newImages[0] || ''
+      images: newImages
     }));
   };
 
@@ -84,7 +85,7 @@ const CreateAd = () => {
     }
 
     // Validate form
-    if (!formData.title || !formData.category || !formData.image || formData.rentalAmount <= 0) {
+    if (!formData.make || !formData.model || !formData.category || formData.images.length === 0 || formData.pricePerDay <= 0 || !formData.location || !formData.district) {
       return;
     }
 
@@ -101,6 +102,19 @@ const CreateAd = () => {
       }
     );
   };
+
+  // Show loading while checking authentication
+  if (profileLoading) {
+    return (
+      <div className={styles.createAd}>
+        <div className={styles.container}>
+          <div className={styles.loginRequired}>
+            <h2 className={styles.loginTitle}>Loading...</h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Redirect to login if not authenticated
   if (!isLoggedIn) {
@@ -148,17 +162,19 @@ const CreateAd = () => {
                 onClick={() => {
                   setSuccess(false);
                   setFormData({
-                    title: '',
-                    category: 'Cars',
-                    image: '',
-                    images: [],
-                    rentalAmount: 0,
-                    description: '',
-                    manufacturer: '',
+                    make: '',
                     model: '',
                     year: new Date().getFullYear(),
-                    deliveryDetails: '',
-                    location: ''
+                    category: 'Cars',
+                    transmission: 'Automatic',
+                    fuelType: 'Petrol',
+                    seats: 4,
+                    pricePerDay: 0,
+                    location: '',
+                    district: '',
+                    description: '',
+                    features: [],
+                    images: []
                   });
                 }}
               >
@@ -182,31 +198,38 @@ const CreateAd = () => {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          {error && (
-            <Alert
-              message={error}
-              type="error"
-              duration={0}
-              onClose={() => { }}
-            />
-          )}
-
           {/* Basic Information */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Basic Information</h3>
 
             <div className={styles.inputGroup}>
-              <label htmlFor="title" className={styles.label}>
-                Vehicle Title *
+              <label htmlFor="make" className={styles.label}>
+                Manufacturer *
               </label>
               <input
                 type="text"
-                id="title"
-                name="title"
-                value={formData.title}
+                id="make"
+                name="make"
+                value={formData.make}
                 onChange={handleInputChange}
                 className={styles.input}
-                placeholder="e.g., Toyota Corolla 2020"
+                placeholder="e.g., Toyota"
+                required
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="model" className={styles.label}>
+                Model *
+              </label>
+              <input
+                type="text"
+                id="model"
+                name="model"
+                value={formData.model}
+                onChange={handleInputChange}
+                className={styles.input}
+                placeholder="e.g., Corolla"
                 required
               />
             </div>
@@ -233,14 +256,14 @@ const CreateAd = () => {
               </div>
 
               <div className={styles.inputGroup}>
-                <label htmlFor="rentalAmount" className={styles.label}>
-                  Rental Amount (LKR/day) *
+                <label htmlFor="pricePerDay" className={styles.label}>
+                  Price Per Day (LKR) *
                 </label>
                 <input
                   type="number"
-                  id="rentalAmount"
-                  name="rentalAmount"
-                  value={formData.rentalAmount || ''}
+                  id="pricePerDay"
+                  name="pricePerDay"
+                  value={formData.pricePerDay || ''}
                   onChange={handleInputChange}
                   className={styles.input}
                   placeholder="e.g., 8500"
@@ -257,38 +280,6 @@ const CreateAd = () => {
 
             <div className={styles.row}>
               <div className={styles.inputGroup}>
-                <label htmlFor="manufacturer" className={styles.label}>
-                  Manufacturer *
-                </label>
-                <input
-                  type="text"
-                  id="manufacturer"
-                  name="manufacturer"
-                  value={formData.manufacturer}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="e.g., Toyota"
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="model" className={styles.label}>
-                  Model *
-                </label>
-                <input
-                  type="text"
-                  id="model"
-                  name="model"
-                  value={formData.model}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="e.g., Corolla"
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
                 <label htmlFor="year" className={styles.label}>
                   Year *
                 </label>
@@ -301,6 +292,59 @@ const CreateAd = () => {
                   className={styles.input}
                   min="1980"
                   max={new Date().getFullYear() + 1}
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="transmission" className={styles.label}>
+                  Transmission *
+                </label>
+                <select
+                  id="transmission"
+                  name="transmission"
+                  value={formData.transmission}
+                  onChange={handleInputChange}
+                  className={styles.input}
+                  required
+                >
+                  <option value="Automatic">Automatic</option>
+                  <option value="Manual">Manual</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="fuelType" className={styles.label}>
+                  Fuel Type *
+                </label>
+                <select
+                  id="fuelType"
+                  name="fuelType"
+                  value={formData.fuelType}
+                  onChange={handleInputChange}
+                  className={styles.input}
+                  required
+                >
+                  <option value="Petrol">Petrol</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Electric">Electric</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="seats" className={styles.label}>
+                  Seats *
+                </label>
+                <input
+                  type="number"
+                  id="seats"
+                  name="seats"
+                  value={formData.seats}
+                  onChange={handleInputChange}
+                  className={styles.input}
+                  min="2"
+                  max="50"
                   required
                 />
               </div>
@@ -380,38 +424,39 @@ const CreateAd = () => {
             <div className={styles.row}>
               <div className={styles.inputGroup}>
                 <label htmlFor="location" className={styles.label}>
-                  Location *
+                  Location (City) *
                 </label>
-                <select
+                <input
+                  type="text"
                   id="location"
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
                   className={styles.input}
+                  placeholder="e.g., Colombo"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="district" className={styles.label}>
+                  District *
+                </label>
+                <select
+                  id="district"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleInputChange}
+                  className={styles.input}
                   required
                 >
-                  <option value="">Select Location</option>
+                  <option value="">Select District</option>
                   {locations.map(location => (
                     <option key={location} value={location}>
                       {location}
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="deliveryDetails" className={styles.label}>
-                  Delivery Details
-                </label>
-                <input
-                  type="text"
-                  id="deliveryDetails"
-                  name="deliveryDetails"
-                  value={formData.deliveryDetails}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="e.g., Free delivery within 10km"
-                />
               </div>
             </div>
           </div>
@@ -426,10 +471,10 @@ const CreateAd = () => {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isCreating}
               className={styles.submitButton}
             >
-              {loading ? 'Creating...' : 'Create Ad'}
+              {isCreating ? 'Creating...' : 'Create Ad'}
             </button>
           </div>
         </form>

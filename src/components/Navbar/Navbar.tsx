@@ -1,6 +1,8 @@
 
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useProfile } from '../../queries/user.queries';
+import { useUserService } from '../../services/UserService';
 import styles from './Navbar.module.css';
 import QuickWheelLogo from '../../assets/images/quickWheelLogo.svg';
 
@@ -10,15 +12,32 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if user is logged in from localStorage
-  const userString = localStorage.getItem('currentUser');
-  const user = userString ? JSON.parse(userString) : null;
+  // Check if user is logged in via cookies (useProfile will use httpAuth with credentials)
+  const { data: profile } = useProfile();
+  const { LogoutUser } = useUserService();
+
+  const user = profile?.data ? {
+    id: profile.data.id || '',
+    name: profile.data.fullName || profile.data.name || '',
+    email: profile.data.email || ''
+  } : null;
   const isLoggedIn = !!user;
 
   const handleLogout = async () => {
-    localStorage.removeItem('currentUser');
-    setIsProfileDropdownOpen(false);
-    navigate('/');
+    LogoutUser(
+      () => {
+        setIsProfileDropdownOpen(false);
+        navigate('/');
+        window.location.reload(); // Reload to clear profile cache
+      },
+      (error) => {
+        console.error('Logout error:', error);
+        // Even on error, navigate to home
+        setIsProfileDropdownOpen(false);
+        navigate('/');
+        window.location.reload();
+      }
+    );
   };
 
   const toggleMenu = () => {
@@ -103,6 +122,20 @@ const Navbar = () => {
                   >
                     Profile
                   </Link>
+                  <Link
+                    to="/my-rides"
+                    className={styles.dropdownItem}
+                    onClick={closeMenus}
+                  >
+                    My Rides
+                  </Link>
+                  <Link
+                    to="/my-vehicles"
+                    className={styles.dropdownItem}
+                    onClick={closeMenus}
+                  >
+                    My Vehicles
+                  </Link>
                   <button
                     className={styles.dropdownItem}
                     onClick={handleLogout}
@@ -166,7 +199,13 @@ const Navbar = () => {
                 <Link to="/profile" className={styles.mobileNavLink} onClick={closeMenus}>
                   Profile ({user?.name})
                 </Link>
-                <button className={styles.mobileLogoutButton} onClick={handleLogout}>
+                <Link to="/my-rides" className={styles.mobileNavLink} onClick={closeMenus}>
+                  My Rides
+                </Link>
+                <Link to="/my-vehicles" className={styles.mobileNavLink} onClick={closeMenus}>
+                  My Vehicles
+                </Link>
+                <button className={styles.mobileLogoutButton} onClick={() => { closeMenus(); handleLogout(); }}>
                   Logout
                 </button>
               </>

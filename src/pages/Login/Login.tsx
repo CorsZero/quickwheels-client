@@ -29,10 +29,13 @@ const Login = () => {
       email,
       password,
       (data) => {
-        const successMessage = data?.message || 'Login successful! Redirecting to your profile...';
+        const successMessage = data?.message || 'Login successful! Redirecting...';
         setSuccess(true);
         setError(successMessage);
-        setTimeout(() => navigate('/'));
+        setTimeout(() => {
+          navigate('/');
+          window.location.reload(); // Reload to fetch profile with new cookies
+        });
       },
       (error) => {
         const errorMessage = error?.response?.data?.message || error?.message || 'Login failed. Please try again.';

@@ -15,6 +15,8 @@ import Login from '../pages/Login/Login';
 import CreateAccount from '../pages/CreateAccount/CreateAccount';
 import ForgotPassword from '../pages/ForgotPassword/ForgotPassword';
 import Profile from '../pages/Profile/Profile';
+import MyRides from '../pages/MyRides/MyRides';
+import MyVehicles from '../pages/MyVehicles/MyVehicles';
 import ScheduledRideDetails from '../pages/ScheduledRideDetails/ScheduledRideDetails';
 
 
@@ -54,6 +56,14 @@ export const router = createBrowserRouter([
       {
         path: 'profile',
         element: <Profile />
+      },
+      {
+        path: 'my-rides',
+        element: <MyRides />
+      },
+      {
+        path: 'my-vehicles',
+        element: <MyVehicles />
       },
       {
         path: 'scheduled-ride/:id',

@@ -34,12 +34,27 @@ const VehicleCard = ({ vehicle, onClick }: VehicleCardProps) => {
     return categoryMap[cat.toUpperCase()] || cat;
   };
 
+  // Helper to construct full image URL
+  const getImageUrl = (imagePath: string | undefined) => {
+    if (!imagePath) return 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop';
+
+    // If already a full URL, return as is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+
+    // Construct full URL - images are served from the base backend URL without /api/v1
+    // Backend serves files at http://localhost:5002/vehicles/...
+    const backendUrl = import.meta.env.VITE_VEHICLE_API_BASE_URL?.replace('/api/v1', '') || 'http://localhost:5002';
+    return `${backendUrl}/${imagePath}`;
+  };
+
   // Map API fields to card display fields
   const vehicleData = {
     id: vehicle.id,
     title: `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || 'Vehicle',
     category: formatCategory(vehicle.category),
-    image: vehicle.images?.[0] || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop',
+    image: getImageUrl(vehicle.images?.[0] || vehicle.image),
     images: vehicle.images || [],
     rentalAmount: vehicle.pricePerDay || 0,
     available: vehicle.status === 'AVAILABLE',
@@ -49,6 +64,9 @@ const VehicleCard = ({ vehicle, onClick }: VehicleCardProps) => {
     description: vehicle.description || 'No description',
     seats: vehicle.seats || 0
   };
+
+  console.log('VehicleCard - Original vehicle:', vehicle);
+  console.log('VehicleCard - Processed image URL:', vehicleData.image);
 
   return (
     <article
@@ -64,12 +82,12 @@ const VehicleCard = ({ vehicle, onClick }: VehicleCardProps) => {
           src={vehicleData.image}
           alt={vehicleData.title}
           className={styles.image}
+          loading="lazy"
           onError={(e) => {
             const t = e.target as HTMLImageElement;
-            t.src = vehicleData.images?.[0] || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop';
+            t.src = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop';
           }}
         />
-
       </div>
 
       <div className={styles.details}>

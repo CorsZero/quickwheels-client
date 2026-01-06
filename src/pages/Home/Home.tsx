@@ -19,6 +19,9 @@ const Home = () => {
   // Extract vehicles array from response
   const displayVehicles = vehicles?.data?.vehicles?.slice(0, 8) || [];
 
+  console.log('Home - Full API Response:', vehicles);
+  console.log('Home - Vehicles Array:', displayVehicles);
+
   return (
     <div className={styles.home}>
       <Hero />
