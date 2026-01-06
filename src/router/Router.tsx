@@ -13,6 +13,7 @@ import AdDetails from '../pages/AdDetails/AdDetails';
 import CreateAd from '../pages/CreateAd/CreateAd';
 import Login from '../pages/Login/Login';
 import CreateAccount from '../pages/CreateAccount/CreateAccount';
+import ForgotPassword from '../pages/ForgotPassword/ForgotPassword';
 import Profile from '../pages/Profile/Profile';
 import ScheduledRideDetails from '../pages/ScheduledRideDetails/ScheduledRideDetails';
 
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
       {
         path: 'register',
         element: <CreateAccount />
+      },
+      {
+        path: 'forgot-password',
+        element: <ForgotPassword />
       },
       {
         path: 'profile',

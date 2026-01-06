@@ -9,7 +9,8 @@
  * - Responsive grid layout
  */
 
-import { useAds } from '../../contexts/AdsContext';
+import { useVehicleService } from '../../services/VehicleService';
+import type { Vehicle } from '../../services/api';
 import Alert from '../Alert/Alert';
 import VehicleCard from '../VehicleCard/VehicleCard';
 import styles from './VehicleList.module.css';
@@ -22,14 +23,17 @@ interface VehicleListProps {
 }
 
 const VehicleList = ({ title = "Available Vehicles", showPagination = false, limit, showHeader = true }: VehicleListProps) => {
-  const { ads, loading, error, currentPage, totalPages, fetchAds } = useAds();
+  const { vehicles, vehiclesLoading: loading, vehiclesError: error } = useVehicleService();
 
+  const ads = vehicles?.data?.vehicles || [];
   const displayedAds = limit ? ads.slice(0, limit) : ads;
+  const currentPage = vehicles?.data?.pagination?.currentPage || 1;
+  const totalPages = vehicles?.data?.pagination?.totalPages || 1;
 
   const handlePageChange = async (page: number) => {
     if (showPagination && page !== currentPage) {
-      await fetchAds(page);
-      // Scroll to top of the list
+      // Pagination can be implemented with VehicleService later
+      console.log('Navigate to page:', page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -39,10 +43,10 @@ const VehicleList = ({ title = "Available Vehicles", showPagination = false, lim
 
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -67,9 +71,8 @@ const VehicleList = ({ title = "Available Vehicles", showPagination = false, lim
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`${styles.paginationButton} ${
-            i === currentPage ? styles.active : ''
-          }`}
+          className={`${styles.paginationButton} ${i === currentPage ? styles.active : ''
+            }`}
         >
           {i}
         </button>
@@ -122,17 +125,17 @@ const VehicleList = ({ title = "Available Vehicles", showPagination = false, lim
         <div className={styles.container}>
           <h2 className={styles.title}>{title}</h2>
           <Alert
-            message={error}
+            message={error.toString()}
             type="error"
             duration={0}
-            onClose={() => fetchAds(currentPage)}
+            onClose={() => { }}
           />
           <div className={styles.error}>
             <div className={styles.errorIcon}>⚠️</div>
-            <p className={styles.errorMessage}>{error}</p>
-            <button 
+            <p className={styles.errorMessage}>{error.toString()}</p>
+            <button
               className={styles.retryButton}
-              onClick={() => fetchAds(currentPage)}
+              onClick={() => window.location.reload()}
             >
               Try Again
             </button>
@@ -172,7 +175,7 @@ const VehicleList = ({ title = "Available Vehicles", showPagination = false, lim
         )}
 
         <div className={styles.grid}>
-          {displayedAds.map((vehicle) => (
+          {displayedAds.map((vehicle: Vehicle) => (
             <VehicleCard
               key={vehicle.id}
               vehicle={vehicle}

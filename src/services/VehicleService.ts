@@ -8,10 +8,10 @@ import {
     useRemoveVehicle
 } from '../queries/vehicle.queries';
 
-export const useVehicleService = () => {
+export const useVehicleService = (enableMyListings: boolean = false) => {
     const { data: vehicles, isLoading: vehiclesLoading, error: vehiclesError, isError: vehiclesHasError } = useVehicles();
     const vehicleById = useVehicleById();
-    const { data: myListings, isLoading: listingsLoading, error: listingsError, isError: listingsHasError } = useMyListings(1, 10);
+    const { data: myListings, isLoading: listingsLoading, error: listingsError, isError: listingsHasError, refetch: refetchListings } = useMyListings(1, 10, enableMyListings);
     const createVehicle = useCreateVehicle();
     const updateVehicle = useUpdateVehicle();
     const updateVehicleStatus = useUpdateVehicleStatus();
@@ -47,15 +47,21 @@ export const useVehicleService = () => {
         });
     };
 
-    const GetMyListings = (
+    const GetMyListings = async (
         onSuccess?: (data: any) => void,
         onError?: (error: any) => void
     ) => {
-        if (!listingsHasError) {
-            console.log("My Listed Vehicles:", myListings.data.vehicles);
-            onSuccess?.(myListings);
-        } else {
-            onError?.(listingsError);
+        try {
+            const result = await refetchListings();
+            if (result.data) {
+                console.log("My Listed Vehicles:", result.data.data.vehicles);
+                onSuccess?.(result.data);
+            } else if (result.error) {
+                onError?.(result.error);
+            }
+        } catch (error) {
+            console.error('Error fetching listings:', error);
+            onError?.(error);
         }
     };
 

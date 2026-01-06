@@ -7,16 +7,19 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useAds } from '../../contexts/AdsContext';
+import { useVehicleService } from '../../services/VehicleService';
 import Alert from '../../components/Alert/Alert';
 import type { CreateAdData, Vehicle } from '../../services/api';
 import styles from './CreateAd.module.css';
 
 const CreateAd = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
-  const { createAd, loading, error } = useAds();
+
+  // Get user from localStorage
+  const userString = localStorage.getItem('currentUser');
+  const isLoggedIn = !!userString;
+
+  const { CreateVehicle, isPending } = useVehicleService();
 
   const [formData, setFormData] = useState<CreateAdData>({
     title: '',
@@ -74,7 +77,7 @@ const CreateAd = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isLoggedIn) {
       navigate('/login');
       return;
@@ -85,15 +88,18 @@ const CreateAd = () => {
       return;
     }
 
-    try {
-      const newAd = await createAd(formData);
-      if (newAd) {
-        setNewAdId(newAd.id);
-        setSuccess(true);
+    CreateVehicle(
+      formData,
+      (response) => {
+        if (response?.data?.vehicle?.id) {
+          setNewAdId(response.data.vehicle.id);
+          setSuccess(true);
+        }
+      },
+      (errorMsg) => {
+        console.error('Error creating ad:', errorMsg);
       }
-    } catch (err) {
-      console.error('Error creating ad:', err);
-    }
+    );
   };
 
   // Redirect to login if not authenticated
@@ -107,7 +113,7 @@ const CreateAd = () => {
             <p className={styles.loginMessage}>
               You need to be logged in to create vehicle rental ads.
             </p>
-            <button 
+            <button
               className={styles.loginButton}
               onClick={() => navigate('/login')}
             >
@@ -131,13 +137,13 @@ const CreateAd = () => {
               Your vehicle rental ad has been created and is now live.
             </p>
             <div className={styles.successActions}>
-              <button 
+              <button
                 className={styles.viewAdButton}
                 onClick={() => navigate(`/ad/${newAdId}`)}
               >
                 View Your Ad
               </button>
-              <button 
+              <button
                 className={styles.createAnotherButton}
                 onClick={() => {
                   setSuccess(false);
@@ -177,18 +183,18 @@ const CreateAd = () => {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {error && (
-            <Alert 
-              message={error} 
-              type="error" 
+            <Alert
+              message={error}
+              type="error"
               duration={0}
-              onClose={() => {}}
+              onClose={() => { }}
             />
           )}
 
           {/* Basic Information */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Basic Information</h3>
-            
+
             <div className={styles.inputGroup}>
               <label htmlFor="title" className={styles.label}>
                 Vehicle Title *
@@ -248,7 +254,7 @@ const CreateAd = () => {
           {/* Vehicle Details */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Vehicle Details</h3>
-            
+
             <div className={styles.row}>
               <div className={styles.inputGroup}>
                 <label htmlFor="manufacturer" className={styles.label}>
@@ -307,7 +313,7 @@ const CreateAd = () => {
             <p className={styles.sectionDescription}>
               Add image URLs for your vehicle. The first image will be used as the main image.
             </p>
-            
+
             {formData.images.map((url, index) => (
               <div key={index} className={styles.imageRow}>
                 <input
@@ -328,7 +334,7 @@ const CreateAd = () => {
                 </button>
               </div>
             ))}
-            
+
             {formData.images.length === 0 && (
               <div className={styles.imageRow}>
                 <input
@@ -341,7 +347,7 @@ const CreateAd = () => {
                 />
               </div>
             )}
-            
+
             <button
               type="button"
               onClick={addImageUrl}
@@ -354,7 +360,7 @@ const CreateAd = () => {
           {/* Description and Location */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Additional Details</h3>
-            
+
             <div className={styles.inputGroup}>
               <label htmlFor="description" className={styles.label}>
                 Description *

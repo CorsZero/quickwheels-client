@@ -22,10 +22,11 @@ export const useVehicleById = () => {
   });
 };
 
-export const useMyListings = (page: number = 1, limit: number = 10) =>
+export const useMyListings = (page: number = 1, limit: number = 10, enabled: boolean = false) =>
   useQuery({
     queryKey: ["myListings", page, limit],
     queryFn: () => fetchMyListings(page, limit),
+    enabled: enabled,
   });
 
 export const useCreateVehicle = () => {

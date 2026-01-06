@@ -1,19 +1,22 @@
 
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import styles from './Navbar.module.css';
 import QuickWheelLogo from '../../assets/images/quickWheelLogo.svg';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const { user, logout, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Check if user is logged in from localStorage
+  const userString = localStorage.getItem('currentUser');
+  const user = userString ? JSON.parse(userString) : null;
+  const isLoggedIn = !!user;
+
   const handleLogout = async () => {
-    await logout();
+    localStorage.removeItem('currentUser');
     setIsProfileDropdownOpen(false);
     navigate('/');
   };
@@ -42,21 +45,21 @@ const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <div className={styles.navLinks}>
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className={`${styles.navLink} ${location.pathname === '/' ? styles.active : ''}`}
           >
             Home
           </Link>
-          <Link 
-            to="/ads" 
+          <Link
+            to="/ads"
             className={`${styles.navLink} ${location.pathname === '/ads' ? styles.active : ''}`}
           >
             Ads
           </Link>
           {isLoggedIn && (
-            <Link 
-              to="/create-ad" 
+            <Link
+              to="/create-ad"
               className={`${styles.navLink} ${location.pathname === '/create-ad' ? styles.active : ''}`}
             >
               Create Ad
@@ -90,17 +93,17 @@ const Navbar = () => {
                   {isProfileDropdownOpen ? '▲' : '▼'}
                 </span>
               </button>
-              
+
               {isProfileDropdownOpen && (
                 <div className={styles.dropdownMenu}>
-                  <Link 
-                    to="/profile" 
+                  <Link
+                    to="/profile"
                     className={styles.dropdownItem}
                     onClick={closeMenus}
                   >
                     Profile
                   </Link>
-                  <button 
+                  <button
                     className={styles.dropdownItem}
                     onClick={handleLogout}
                   >
@@ -133,30 +136,30 @@ const Navbar = () => {
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
         <div className={styles.mobileMenu}>
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className={`${styles.mobileNavLink} ${location.pathname === '/' ? styles.active : ''}`}
             onClick={closeMenus}
           >
             Home
           </Link>
-          <Link 
-            to="/ads" 
+          <Link
+            to="/ads"
             className={`${styles.mobileNavLink} ${location.pathname === '/ads' ? styles.active : ''}`}
             onClick={closeMenus}
           >
             Ads
           </Link>
           {isLoggedIn && (
-            <Link 
-              to="/create-ad" 
+            <Link
+              to="/create-ad"
               className={`${styles.mobileNavLink} ${location.pathname === '/create-ad' ? styles.active : ''}`}
               onClick={closeMenus}
             >
               Create Ad
             </Link>
           )}
-          
+
           <div className={styles.mobileAuth}>
             {isLoggedIn ? (
               <>

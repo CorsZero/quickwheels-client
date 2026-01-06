@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { bookVehicle } from '../../services/api';
+import { useBookingService } from '../../services/BookingService';
 import type { Vehicle } from '../../services/api';
 import type { AlertType } from '../Alert/Alert';
 import Alert from '../Alert/Alert';
@@ -21,7 +20,11 @@ const THUMBS_PER_PAGE = 4;
 
 // Recreated Vehicle Details to match the provided mock 1:1
 const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
-  const { user, isLoggedIn } = useAuth();
+  const userString = localStorage.getItem('currentUser');
+  const user = userString ? JSON.parse(userString) : null;
+  const isLoggedIn = !!user;
+  const { CreateBooking } = useBookingService();
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [duration, setDuration] = useState(5);
   const [loading, setLoading] = useState(false);
@@ -46,7 +49,7 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
     img8,
   ];
 
- 
+
 
   const hasImages = sampleImages.length > 0;
   const thumbsPerPageUsed = thumbsPerPage;
@@ -113,21 +116,24 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
 
   const handleBook = async () => {
     if (!canBook) return;
-    try {
-      setLoading(true);
-      setMessage('');
-      const start = new Date();
-      const end = new Date(start);
-      end.setDate(end.getDate() + Number(duration || 1));
-      const startStr = start.toISOString().split('T')[0];
-      const endStr = end.toISOString().split('T')[0];
-      await bookVehicle(displayVehicle.id || vehicle.id, startStr, endStr);
-      setMessage('Booked successfully. Check your profile for details.');
-    } catch (e) {
-      setMessage('Booking failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    setMessage('');
+
+    CreateBooking(
+      displayVehicle.id || vehicle.id,
+      `Booking for ${duration} days`,
+      (response) => {
+        setMessage('Booked successfully. Check your profile for details.');
+        setMessageType('success');
+        setLoading(false);
+      },
+      (error) => {
+        const errorMessage = error?.response?.data?.message || 'Booking failed. Please try again.';
+        setMessage(errorMessage);
+        setMessageType('error');
+        setLoading(false);
+      }
+    );
   };
 
   return (
@@ -154,21 +160,21 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
           <div className={styles.thumbs}>
             {hasImages
               ? visibleThumbs.map(({ src, idx }) => (
-                  <button
-                    key={idx}
-                    className={`${styles.thumb} ${idx === currentImageIndex ? styles.active : ''}`}
-                    onClick={() => setCurrentImageIndex(idx)}
-                    aria-label={`Image ${idx + 1}`}
-                  >
-                    <img
-                      src={src}
-                      alt={`Thumb ${idx + 1}`}
-                    />
-                  </button>
-                ))
+                <button
+                  key={idx}
+                  className={`${styles.thumb} ${idx === currentImageIndex ? styles.active : ''}`}
+                  onClick={() => setCurrentImageIndex(idx)}
+                  aria-label={`Image ${idx + 1}`}
+                >
+                  <img
+                    src={src}
+                    alt={`Thumb ${idx + 1}`}
+                  />
+                </button>
+              ))
               : Array.from({ length: THUMBS_PER_PAGE }).map((_, idx) => (
-                  <div key={idx} className={styles.ghostThumb}></div>
-                ))}
+                <div key={idx} className={styles.ghostThumb}></div>
+              ))}
           </div>
           <button
             className={`${styles.navBtn} ${styles.right} ${thumbPage >= totalPages - 1 ? styles.disabled : ''}`}
@@ -196,16 +202,16 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
         )}
 
         <div className={styles.textDetails}>
-           <div className={styles.textGap}>
-          <p><strong>Manufacturer</strong></p>
-          <p>{displayVehicle.manufacturer || '—'}</p></div>
           <div className={styles.textGap}>
-          <p><strong>YOM</strong></p>
-          <p>{displayVehicle.year || '—'}</p>
+            <p><strong>Manufacturer</strong></p>
+            <p>{displayVehicle.manufacturer || '—'}</p></div>
+          <div className={styles.textGap}>
+            <p><strong>YOM</strong></p>
+            <p>{displayVehicle.year || '—'}</p>
           </div>
           <div className={styles.textGap}>
-          <p><strong>Optional details</strong></p>
-          <p>{displayVehicle.description || '—'}</p></div>
+            <p><strong>Optional details</strong></p>
+            <p>{displayVehicle.description || '—'}</p></div>
           <p><strong>Delivery Mode</strong> : {displayVehicle.deliveryDetails || 'Deliver to specific area or Self Pick up'}</p>
           <p><strong>Security deposit type</strong> as described by the seller</p>
         </div>
@@ -235,9 +241,9 @@ const VehicleDetails = ({ vehicle }: VehicleDetailsProps) => {
         </ul>
 
         {message && (
-          <Alert 
-            message={message} 
-            type={messageType} 
+          <Alert
+            message={message}
+            type={messageType}
             onClose={() => setMessage('')}
           />
         )}

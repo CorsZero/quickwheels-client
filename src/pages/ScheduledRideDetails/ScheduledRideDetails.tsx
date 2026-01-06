@@ -7,7 +7,6 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import type { AlertType } from '../../components/Alert/Alert';
 import Alert from '../../components/Alert/Alert';
 import styles from './ScheduledRideDetails.module.css';
@@ -15,7 +14,10 @@ import styles from './ScheduledRideDetails.module.css';
 const ScheduledRideDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+
+  // Get user from localStorage
+  const userString = localStorage.getItem('currentUser');
+  const user = userString ? JSON.parse(userString) : null;
 
   // Find the booking from user's bookedRides
   const booking = user?.bookedRides.find(b => b.id === id);
@@ -68,7 +70,7 @@ const ScheduledRideDetails = () => {
             <p className={styles.subtitle}>
               The scheduled ride you're looking for doesn't exist.
             </p>
-            <button 
+            <button
               className={styles.backLink}
               onClick={() => navigate('/profile')}
             >
@@ -152,7 +154,7 @@ const ScheduledRideDetails = () => {
 
   const handleSaveChanges = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.vehicleTitle || !formData.vehicleImage || formData.totalAmount <= 0) {
       setError('Please fill in all required fields');
       return;
@@ -196,16 +198,16 @@ const ScheduledRideDetails = () => {
     <div className={styles.scheduledRide}>
       <div className={styles.container}>
         {error && (
-          <Alert 
-            message={error} 
-            type="error" 
+          <Alert
+            message={error}
+            type="error"
             onClose={() => setError('')}
           />
         )}
         {successMessage && (
-          <Alert 
-            message={successMessage} 
-            type="success" 
+          <Alert
+            message={successMessage}
+            type="success"
             duration={3000}
             onClose={() => setSuccessMessage('')}
           />
@@ -215,22 +217,22 @@ const ScheduledRideDetails = () => {
           <p className={styles.subtitle}>
             View and manage your scheduled ride details
           </p>
-          
+
         </div>
 
         {isEditing ? (
           <form onSubmit={handleSaveChanges} className={styles.form}>
             {error && (
-              <Alert 
-                message={error} 
-                type="error" 
+              <Alert
+                message={error}
+                type="error"
                 onClose={() => setError('')}
               />
             )}
             {successMessage && (
-              <Alert 
-                message={successMessage} 
-                type="success" 
+              <Alert
+                message={successMessage}
+                type="success"
                 duration={3000}
                 onClose={() => setSuccessMessage('')}
               />
@@ -239,7 +241,7 @@ const ScheduledRideDetails = () => {
             {/* Basic Information */}
             <div className={styles.section}>
               <h3 className={styles.sectionTitle}>Basic Information</h3>
-              
+
               <div className={styles.inputGroup}>
                 <label htmlFor="vehicleTitle" className={styles.label}>
                   Vehicle Title *
@@ -296,7 +298,7 @@ const ScheduledRideDetails = () => {
             {/* Ride Details */}
             <div className={styles.section}>
               <h3 className={styles.sectionTitle}>Ride Details</h3>
-              
+
               <div className={styles.row}>
                 <div className={styles.inputGroup}>
                   <label htmlFor="pickupLocation" className={styles.label}>
@@ -379,7 +381,7 @@ const ScheduledRideDetails = () => {
                   </button>
                 </div>
               ))}
-              
+
               {images.length === 0 && (
                 <div className={styles.imageRow}>
                   <input
@@ -392,7 +394,7 @@ const ScheduledRideDetails = () => {
                   />
                 </div>
               )}
-              
+
               <button
                 type="button"
                 onClick={addImageUrl}
@@ -405,7 +407,7 @@ const ScheduledRideDetails = () => {
             {/* Description */}
             <div className={styles.section}>
               <h3 className={styles.sectionTitle}>Additional Details</h3>
-              
+
               <div className={styles.inputGroup}>
                 <label htmlFor="description" className={styles.label}>
                   Description
@@ -536,13 +538,13 @@ const ScheduledRideDetails = () => {
             </div>
 
             <div className={styles.actions}>
-              <button 
+              <button
                 onClick={() => navigate('/profile')}
                 className={styles.cancelButton}
               >
                 Back to Profile
               </button>
-              <button 
+              <button
                 onClick={() => setIsEditing(true)}
                 className={styles.submitButton}
               >

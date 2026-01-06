@@ -1,7 +1,6 @@
 
 
 import { useState } from 'react';
-import { useAds } from '../../contexts/AdsContext';
 import styles from './Hero.module.css';
 import searchIcon from '../../assets/images/iconsax-search.svg';
 import arrowIcon from '../../assets/images/arrow-down.svg';
@@ -10,15 +9,16 @@ const categories = ['All', 'Cars', 'Scooters', 'Motor Bicycle', 'Vans', 'Large V
 
 const Hero = () => {
   const [searchInput, setSearchInput] = useState('');
-  const { selectedCategory, setSelectedCategory, fetchAds } = useAds();
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const handleSearch = async () => {
-    await fetchAds(1, selectedCategory, searchInput);
+    // Search functionality can be implemented later with VehicleService
+    console.log('Search:', searchInput, 'Category:', selectedCategory);
   };
 
   const handleCategoryChange = async (category: string) => {
     setSelectedCategory(category);
-    await fetchAds(1, category, searchInput);
+    console.log('Category changed to:', category);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -63,9 +63,8 @@ const Hero = () => {
                   <button
                     key={category}
                     onClick={() => handleCategoryChange(category)}
-                    className={`${styles.categoryChip} ${
-                      selectedCategory === category ? styles.active : ''
-                    }`}
+                    className={`${styles.categoryChip} ${selectedCategory === category ? styles.active : ''
+                      }`}
                   >
                     <span>{category}</span>
                   </button>

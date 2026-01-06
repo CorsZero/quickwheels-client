@@ -24,6 +24,47 @@
   font-weight: 700;
 }
 
+/* Vehicle section container */
+.vehicleSection {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.error {
+  color: #dc2626;
+}
+
+/* Vehicle grid */
+.vehicleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(650px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+@media (max-width: 1400px) {
+  .vehicleGrid {
+    grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .vehicleGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 /* Show More button container under ads section */
 .showMoreContainer {
   max-width: 1200px;
