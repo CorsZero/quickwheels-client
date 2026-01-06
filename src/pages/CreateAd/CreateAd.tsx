@@ -7,29 +7,35 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useAds } from '../../contexts/AdsContext';
-import Alert from '../../components/Alert/Alert';
-import type { CreateAdData, Vehicle } from '../../services/api';
+import { useProfile } from '../../queries/user.queries';
+import { useVehicleService } from '../../services/VehicleService';
+import type { Vehicle } from '../../services/api';
 import styles from './CreateAd.module.css';
 
 const CreateAd = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
-  const { createAd, loading, error } = useAds();
 
-  const [formData, setFormData] = useState<CreateAdData>({
-    title: '',
-    category: 'Cars',
-    image: '',
-    images: [],
-    rentalAmount: 0,
-    description: '',
-    manufacturer: '',
+  // Check if user is logged in via cookies
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const isLoggedIn = !!profile?.data;
+
+  const { CreateVehicle, isPending } = useVehicleService();
+  const isCreating = isPending.createVehicle;
+
+  const [formData, setFormData] = useState({
+    make: '',
     model: '',
     year: new Date().getFullYear(),
-    deliveryDetails: '',
-    location: ''
+    category: 'Cars',
+    transmission: 'Automatic',
+    fuelType: 'Petrol',
+    seats: 4,
+    pricePerDay: 0,
+    location: '',
+    district: '',
+    description: '',
+    features: [] as string[],
+    images: [] as string[]
   });
 
   const [success, setSuccess] = useState(false);
@@ -42,7 +48,7 @@ const CreateAd = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'rentalAmount' || name === 'year' ? Number(value) : value
+      [name]: name === 'pricePerDay' || name === 'year' || name === 'seats' ? Number(value) : value
     }));
   };
 
@@ -51,8 +57,7 @@ const CreateAd = () => {
     newImages[index] = url;
     setFormData(prev => ({
       ...prev,
-      images: newImages,
-      image: newImages[0] || '' // Set first image as main image
+      images: newImages
     }));
   };
 
@@ -67,34 +72,49 @@ const CreateAd = () => {
     const newImages = formData.images.filter((_, i) => i !== index);
     setFormData(prev => ({
       ...prev,
-      images: newImages,
-      image: newImages[0] || ''
+      images: newImages
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isLoggedIn) {
       navigate('/login');
       return;
     }
 
     // Validate form
-    if (!formData.title || !formData.category || !formData.image || formData.rentalAmount <= 0) {
+    if (!formData.make || !formData.model || !formData.category || formData.images.length === 0 || formData.pricePerDay <= 0 || !formData.location || !formData.district) {
       return;
     }
 
-    try {
-      const newAd = await createAd(formData);
-      if (newAd) {
-        setNewAdId(newAd.id);
-        setSuccess(true);
+    CreateVehicle(
+      formData,
+      (response) => {
+        if (response?.data?.vehicle?.id) {
+          setNewAdId(response.data.vehicle.id);
+          setSuccess(true);
+        }
+      },
+      (errorMsg) => {
+        console.error('Error creating ad:', errorMsg);
       }
-    } catch (err) {
-      console.error('Error creating ad:', err);
-    }
+    );
   };
+
+  // Show loading while checking authentication
+  if (profileLoading) {
+    return (
+      <div className={styles.createAd}>
+        <div className={styles.container}>
+          <div className={styles.loginRequired}>
+            <h2 className={styles.loginTitle}>Loading...</h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Redirect to login if not authenticated
   if (!isLoggedIn) {
@@ -107,7 +127,7 @@ const CreateAd = () => {
             <p className={styles.loginMessage}>
               You need to be logged in to create vehicle rental ads.
             </p>
-            <button 
+            <button
               className={styles.loginButton}
               onClick={() => navigate('/login')}
             >
@@ -131,28 +151,30 @@ const CreateAd = () => {
               Your vehicle rental ad has been created and is now live.
             </p>
             <div className={styles.successActions}>
-              <button 
+              <button
                 className={styles.viewAdButton}
                 onClick={() => navigate(`/ad/${newAdId}`)}
               >
                 View Your Ad
               </button>
-              <button 
+              <button
                 className={styles.createAnotherButton}
                 onClick={() => {
                   setSuccess(false);
                   setFormData({
-                    title: '',
-                    category: 'Cars',
-                    image: '',
-                    images: [],
-                    rentalAmount: 0,
-                    description: '',
-                    manufacturer: '',
+                    make: '',
                     model: '',
                     year: new Date().getFullYear(),
-                    deliveryDetails: '',
-                    location: ''
+                    category: 'Cars',
+                    transmission: 'Automatic',
+                    fuelType: 'Petrol',
+                    seats: 4,
+                    pricePerDay: 0,
+                    location: '',
+                    district: '',
+                    description: '',
+                    features: [],
+                    images: []
                   });
                 }}
               >
@@ -176,31 +198,38 @@ const CreateAd = () => {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          {error && (
-            <Alert 
-              message={error} 
-              type="error" 
-              duration={0}
-              onClose={() => {}}
-            />
-          )}
-
           {/* Basic Information */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Basic Information</h3>
-            
+
             <div className={styles.inputGroup}>
-              <label htmlFor="title" className={styles.label}>
-                Vehicle Title *
+              <label htmlFor="make" className={styles.label}>
+                Manufacturer *
               </label>
               <input
                 type="text"
-                id="title"
-                name="title"
-                value={formData.title}
+                id="make"
+                name="make"
+                value={formData.make}
                 onChange={handleInputChange}
                 className={styles.input}
-                placeholder="e.g., Toyota Corolla 2020"
+                placeholder="e.g., Toyota"
+                required
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="model" className={styles.label}>
+                Model *
+              </label>
+              <input
+                type="text"
+                id="model"
+                name="model"
+                value={formData.model}
+                onChange={handleInputChange}
+                className={styles.input}
+                placeholder="e.g., Corolla"
                 required
               />
             </div>
@@ -227,14 +256,14 @@ const CreateAd = () => {
               </div>
 
               <div className={styles.inputGroup}>
-                <label htmlFor="rentalAmount" className={styles.label}>
-                  Rental Amount (LKR/day) *
+                <label htmlFor="pricePerDay" className={styles.label}>
+                  Price Per Day (LKR) *
                 </label>
                 <input
                   type="number"
-                  id="rentalAmount"
-                  name="rentalAmount"
-                  value={formData.rentalAmount || ''}
+                  id="pricePerDay"
+                  name="pricePerDay"
+                  value={formData.pricePerDay || ''}
                   onChange={handleInputChange}
                   className={styles.input}
                   placeholder="e.g., 8500"
@@ -248,40 +277,8 @@ const CreateAd = () => {
           {/* Vehicle Details */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Vehicle Details</h3>
-            
+
             <div className={styles.row}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="manufacturer" className={styles.label}>
-                  Manufacturer *
-                </label>
-                <input
-                  type="text"
-                  id="manufacturer"
-                  name="manufacturer"
-                  value={formData.manufacturer}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="e.g., Toyota"
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="model" className={styles.label}>
-                  Model *
-                </label>
-                <input
-                  type="text"
-                  id="model"
-                  name="model"
-                  value={formData.model}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="e.g., Corolla"
-                  required
-                />
-              </div>
-
               <div className={styles.inputGroup}>
                 <label htmlFor="year" className={styles.label}>
                   Year *
@@ -298,6 +295,59 @@ const CreateAd = () => {
                   required
                 />
               </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="transmission" className={styles.label}>
+                  Transmission *
+                </label>
+                <select
+                  id="transmission"
+                  name="transmission"
+                  value={formData.transmission}
+                  onChange={handleInputChange}
+                  className={styles.input}
+                  required
+                >
+                  <option value="Automatic">Automatic</option>
+                  <option value="Manual">Manual</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="fuelType" className={styles.label}>
+                  Fuel Type *
+                </label>
+                <select
+                  id="fuelType"
+                  name="fuelType"
+                  value={formData.fuelType}
+                  onChange={handleInputChange}
+                  className={styles.input}
+                  required
+                >
+                  <option value="Petrol">Petrol</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Electric">Electric</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="seats" className={styles.label}>
+                  Seats *
+                </label>
+                <input
+                  type="number"
+                  id="seats"
+                  name="seats"
+                  value={formData.seats}
+                  onChange={handleInputChange}
+                  className={styles.input}
+                  min="2"
+                  max="50"
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -307,7 +357,7 @@ const CreateAd = () => {
             <p className={styles.sectionDescription}>
               Add image URLs for your vehicle. The first image will be used as the main image.
             </p>
-            
+
             {formData.images.map((url, index) => (
               <div key={index} className={styles.imageRow}>
                 <input
@@ -328,7 +378,7 @@ const CreateAd = () => {
                 </button>
               </div>
             ))}
-            
+
             {formData.images.length === 0 && (
               <div className={styles.imageRow}>
                 <input
@@ -341,7 +391,7 @@ const CreateAd = () => {
                 />
               </div>
             )}
-            
+
             <button
               type="button"
               onClick={addImageUrl}
@@ -354,7 +404,7 @@ const CreateAd = () => {
           {/* Description and Location */}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Additional Details</h3>
-            
+
             <div className={styles.inputGroup}>
               <label htmlFor="description" className={styles.label}>
                 Description *
@@ -374,38 +424,39 @@ const CreateAd = () => {
             <div className={styles.row}>
               <div className={styles.inputGroup}>
                 <label htmlFor="location" className={styles.label}>
-                  Location *
+                  Location (City) *
                 </label>
-                <select
+                <input
+                  type="text"
                   id="location"
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
                   className={styles.input}
+                  placeholder="e.g., Colombo"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="district" className={styles.label}>
+                  District *
+                </label>
+                <select
+                  id="district"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleInputChange}
+                  className={styles.input}
                   required
                 >
-                  <option value="">Select Location</option>
+                  <option value="">Select District</option>
                   {locations.map(location => (
                     <option key={location} value={location}>
                       {location}
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="deliveryDetails" className={styles.label}>
-                  Delivery Details
-                </label>
-                <input
-                  type="text"
-                  id="deliveryDetails"
-                  name="deliveryDetails"
-                  value={formData.deliveryDetails}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="e.g., Free delivery within 10km"
-                />
               </div>
             </div>
           </div>
@@ -420,10 +471,10 @@ const CreateAd = () => {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isCreating}
               className={styles.submitButton}
             >
-              {loading ? 'Creating...' : 'Create Ad'}
+              {isCreating ? 'Creating...' : 'Create Ad'}
             </button>
           </div>
         </form>

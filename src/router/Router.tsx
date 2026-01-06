@@ -13,11 +13,12 @@ import AdDetails from '../pages/AdDetails/AdDetails';
 import CreateAd from '../pages/CreateAd/CreateAd';
 import Login from '../pages/Login/Login';
 import CreateAccount from '../pages/CreateAccount/CreateAccount';
+import ForgotPassword from '../pages/ForgotPassword/ForgotPassword';
 import Profile from '../pages/Profile/Profile';
+import MyRides from '../pages/MyRides/MyRides';
+import MyVehicles from '../pages/MyVehicles/MyVehicles';
 import ScheduledRideDetails from '../pages/ScheduledRideDetails/ScheduledRideDetails';
-import VehicleService from '../pages/ApiTesting/VehicleService';
-import UserService from '../pages/ApiTesting/UserService';
-import BookingService from '../pages/ApiTesting/BookingService';
+
 
 export const router = createBrowserRouter([
   {
@@ -49,17 +50,25 @@ export const router = createBrowserRouter([
         element: <CreateAccount />
       },
       {
+        path: 'forgot-password',
+        element: <ForgotPassword />
+      },
+      {
         path: 'profile',
         element: <Profile />
+      },
+      {
+        path: 'my-rides',
+        element: <MyRides />
+      },
+      {
+        path: 'my-vehicles',
+        element: <MyVehicles />
       },
       {
         path: 'scheduled-ride/:id',
         element: <ScheduledRideDetails />
       },
-      {
-        path: 'api',
-        element: <BookingService />
-      }
     ]
   }
 ]);

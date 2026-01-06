@@ -1,21 +1,43 @@
 
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useProfile } from '../../queries/user.queries';
+import { useUserService } from '../../services/UserService';
 import styles from './Navbar.module.css';
 import QuickWheelLogo from '../../assets/images/quickWheelLogo.svg';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const { user, logout, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Check if user is logged in via cookies (useProfile will use httpAuth with credentials)
+  const { data: profile } = useProfile();
+  const { LogoutUser } = useUserService();
+
+  const user = profile?.data ? {
+    id: profile.data.id || '',
+    name: profile.data.fullName || profile.data.name || '',
+    email: profile.data.email || ''
+  } : null;
+  const isLoggedIn = !!user;
+
   const handleLogout = async () => {
-    await logout();
-    setIsProfileDropdownOpen(false);
-    navigate('/');
+    LogoutUser(
+      () => {
+        setIsProfileDropdownOpen(false);
+        navigate('/');
+        window.location.reload(); // Reload to clear profile cache
+      },
+      (error) => {
+        console.error('Logout error:', error);
+        // Even on error, navigate to home
+        setIsProfileDropdownOpen(false);
+        navigate('/');
+        window.location.reload();
+      }
+    );
   };
 
   const toggleMenu = () => {
@@ -42,21 +64,21 @@ const Navbar = () => {
 
         {/* Desktop Navigation Links */}
         <div className={styles.navLinks}>
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className={`${styles.navLink} ${location.pathname === '/' ? styles.active : ''}`}
           >
             Home
           </Link>
-          <Link 
-            to="/ads" 
+          <Link
+            to="/ads"
             className={`${styles.navLink} ${location.pathname === '/ads' ? styles.active : ''}`}
           >
             Ads
           </Link>
           {isLoggedIn && (
-            <Link 
-              to="/create-ad" 
+            <Link
+              to="/create-ad"
               className={`${styles.navLink} ${location.pathname === '/create-ad' ? styles.active : ''}`}
             >
               Create Ad
@@ -90,17 +112,31 @@ const Navbar = () => {
                   {isProfileDropdownOpen ? '▲' : '▼'}
                 </span>
               </button>
-              
+
               {isProfileDropdownOpen && (
                 <div className={styles.dropdownMenu}>
-                  <Link 
-                    to="/profile" 
+                  <Link
+                    to="/profile"
                     className={styles.dropdownItem}
                     onClick={closeMenus}
                   >
                     Profile
                   </Link>
-                  <button 
+                  <Link
+                    to="/my-rides"
+                    className={styles.dropdownItem}
+                    onClick={closeMenus}
+                  >
+                    My Rides
+                  </Link>
+                  <Link
+                    to="/my-vehicles"
+                    className={styles.dropdownItem}
+                    onClick={closeMenus}
+                  >
+                    My Vehicles
+                  </Link>
+                  <button
                     className={styles.dropdownItem}
                     onClick={handleLogout}
                   >
@@ -133,37 +169,43 @@ const Navbar = () => {
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
         <div className={styles.mobileMenu}>
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className={`${styles.mobileNavLink} ${location.pathname === '/' ? styles.active : ''}`}
             onClick={closeMenus}
           >
             Home
           </Link>
-          <Link 
-            to="/ads" 
+          <Link
+            to="/ads"
             className={`${styles.mobileNavLink} ${location.pathname === '/ads' ? styles.active : ''}`}
             onClick={closeMenus}
           >
             Ads
           </Link>
           {isLoggedIn && (
-            <Link 
-              to="/create-ad" 
+            <Link
+              to="/create-ad"
               className={`${styles.mobileNavLink} ${location.pathname === '/create-ad' ? styles.active : ''}`}
               onClick={closeMenus}
             >
               Create Ad
             </Link>
           )}
-          
+
           <div className={styles.mobileAuth}>
             {isLoggedIn ? (
               <>
                 <Link to="/profile" className={styles.mobileNavLink} onClick={closeMenus}>
                   Profile ({user?.name})
                 </Link>
-                <button className={styles.mobileLogoutButton} onClick={handleLogout}>
+                <Link to="/my-rides" className={styles.mobileNavLink} onClick={closeMenus}>
+                  My Rides
+                </Link>
+                <Link to="/my-vehicles" className={styles.mobileNavLink} onClick={closeMenus}>
+                  My Vehicles
+                </Link>
+                <button className={styles.mobileLogoutButton} onClick={() => { closeMenus(); handleLogout(); }}>
                   Logout
                 </button>
               </>
