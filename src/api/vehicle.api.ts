@@ -16,8 +16,12 @@ export const fetchMyListings = async (page: number = 1, limit: number = 10) => {
   return res.data;
 };
 
-export const createVehicle = async (vehicleData: any) => {
-  const res = await httpVehicle.post("/vehicles", vehicleData);
+export const createVehicle = async (formData: FormData) => {
+  const res = await httpVehicle.post("/vehicles", formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return res.data;
 };
 

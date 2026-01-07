@@ -127,14 +127,14 @@ const Navbar = () => {
                     className={styles.dropdownItem}
                     onClick={closeMenus}
                   >
-                    My Rides
+                    Rides
                   </Link>
                   <Link
                     to="/my-vehicles"
                     className={styles.dropdownItem}
                     onClick={closeMenus}
                   >
-                    My Vehicles
+                    List Vehicle
                   </Link>
                   <button
                     className={styles.dropdownItem}

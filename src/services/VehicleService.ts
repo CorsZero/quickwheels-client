@@ -79,19 +79,44 @@ export const useVehicleService = (enableMyListings: boolean = false) => {
             district: string;
             description: string;
             features: string[];
+            images: File[];
         },
         onSuccess?: (data: any) => void,
         onError?: (error: any) => void
     ) => {
+        // Build FormData
+        const formData = new FormData();
+        formData.append('make', vehicleData.make);
+        formData.append('model', vehicleData.model);
+        formData.append('year', vehicleData.year.toString());
+        formData.append('category', vehicleData.category);
+        formData.append('transmission', vehicleData.transmission);
+        formData.append('fuelType', vehicleData.fuelType);
+        formData.append('seats', vehicleData.seats.toString());
+        formData.append('pricePerDay', vehicleData.pricePerDay.toString());
+        formData.append('location', vehicleData.location);
+        formData.append('district', vehicleData.district);
+        formData.append('description', vehicleData.description);
+        
+        // Append features array
+        vehicleData.features.forEach((feature) => {
+            formData.append('features', feature);
+        });
+        
+        // Append image files
+        vehicleData.images.forEach((file) => {
+            formData.append('images', file);
+        });
+
         createVehicle.mutate(
-            vehicleData,
+            formData,
             {
                 onSuccess: (data) => {
                     console.log('created vehicle:', data.data);
                     onSuccess?.(data);
                 },
                 onError: (error: any) => {
-                    console.log(error.response.data.message);
+                    console.log(error.response?.data?.message || error.message);
                     onError?.(error);
                 }
             }

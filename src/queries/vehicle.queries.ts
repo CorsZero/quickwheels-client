@@ -32,7 +32,7 @@ export const useMyListings = (page: number = 1, limit: number = 10, enabled: boo
 export const useCreateVehicle = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createVehicle,
+    mutationFn: (formData: FormData) => createVehicle(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       queryClient.invalidateQueries({ queryKey: ["myListings"] });

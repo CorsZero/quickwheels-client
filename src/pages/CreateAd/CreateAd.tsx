@@ -26,7 +26,7 @@ const CreateAd = () => {
     make: '',
     model: '',
     year: new Date().getFullYear(),
-    category: 'Cars',
+    category: 'CAR' as Vehicle['category'],
     transmission: 'Automatic',
     fuelType: 'Petrol',
     seats: 4,
@@ -35,13 +35,14 @@ const CreateAd = () => {
     district: '',
     description: '',
     features: [] as string[],
-    images: [] as string[]
+    images: [] as File[]
   });
 
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
   const [newAdId, setNewAdId] = useState<string>('');
 
-  const categories: Vehicle['category'][] = ['Cars', 'Scooters', 'Motor Bicycle', 'Vans', 'Large Vehicles'];
+  const categories: Vehicle['category'][] = ['CAR', 'VAN', 'SUV', 'BIKE'];
   const locations = ['Colombo', 'Kandy', 'Galle', 'Negombo', 'Matara', 'Jaffna', 'Kurunegala', 'Anuradhapura', 'Badulla', 'Ratnapura'];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -52,46 +53,65 @@ const CreateAd = () => {
     }));
   };
 
-  const handleImageUrlChange = (index: number, url: string) => {
-    const newImages = [...formData.images];
-    newImages[index] = url;
-    setFormData(prev => ({
-      ...prev,
-      images: newImages
-    }));
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newFiles = Array.from(files);
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...newFiles]
+      }));
+
+      setImagePreviews(prev => [...prev, ...newPreviews]);
+    }
   };
 
-  const addImageUrl = () => {
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, '']
-    }));
-  };
+  const removeImage = (index: number) => {
+    // Revoke the object URL to free memory
+    URL.revokeObjectURL(imagePreviews[index]);
 
-  const removeImageUrl = (index: number) => {
-    const newImages = formData.images.filter((_, i) => i !== index);
     setFormData(prev => ({
       ...prev,
-      images: newImages
+      images: prev.images.filter((_, i) => i !== index)
     }));
+
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log('Form submitted with data:', formData);
+
     if (!isLoggedIn) {
+      console.log('User not logged in, redirecting...');
       navigate('/login');
       return;
     }
 
     // Validate form
     if (!formData.make || !formData.model || !formData.category || formData.images.length === 0 || formData.pricePerDay <= 0 || !formData.location || !formData.district) {
+      console.log('Validation failed:', {
+        make: formData.make,
+        model: formData.model,
+        category: formData.category,
+        imagesCount: formData.images.length,
+        pricePerDay: formData.pricePerDay,
+        location: formData.location,
+        district: formData.district
+      });
+      alert('Please fill in all required fields');
       return;
     }
+
+    console.log('Validation passed, calling CreateVehicle...');
 
     CreateVehicle(
       formData,
       (response) => {
+        console.log('Vehicle created successfully:', response);
         if (response?.data?.vehicle?.id) {
           setNewAdId(response.data.vehicle.id);
           setSuccess(true);
@@ -99,6 +119,7 @@ const CreateAd = () => {
       },
       (errorMsg) => {
         console.error('Error creating ad:', errorMsg);
+        alert('Error creating ad. Check console for details.');
       }
     );
   };
@@ -161,11 +182,15 @@ const CreateAd = () => {
                 className={styles.createAnotherButton}
                 onClick={() => {
                   setSuccess(false);
+                  setNewAdId('');
+                  // Clean up image previews
+                  imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+                  setImagePreviews([]);
                   setFormData({
                     make: '',
                     model: '',
                     year: new Date().getFullYear(),
-                    category: 'Cars',
+                    category: 'CAR',
                     transmission: 'Automatic',
                     fuelType: 'Petrol',
                     seats: 4,
@@ -191,7 +216,7 @@ const CreateAd = () => {
     <div className={styles.createAd}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Create Vehicle Rental Ad</h1>
+          <h1 className={styles.title}>Rent & Earn Money</h1>
           <p className={styles.subtitle}>
             List your vehicle for rent and start earning today
           </p>
@@ -353,52 +378,47 @@ const CreateAd = () => {
 
           {/* Images */}
           <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Images</h3>
+            <h3 className={styles.sectionTitle}>Images *</h3>
             <p className={styles.sectionDescription}>
-              Add image URLs for your vehicle. The first image will be used as the main image.
+              Upload images for your vehicle. The first image will be used as the main image.
             </p>
 
-            {formData.images.map((url, index) => (
-              <div key={index} className={styles.imageRow}>
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => handleImageUrlChange(index, e.target.value)}
-                  className={styles.input}
-                  placeholder="https://example.com/image.jpg"
-                  required={index === 0}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeImageUrl(index)}
-                  className={styles.removeImageButton}
-                  disabled={index === 0}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
+            <div className={styles.inputGroup}>
+              <label htmlFor="images" className={styles.label}>
+                Select Images
+              </label>
+              <input
+                type="file"
+                id="images"
+                name="images"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className={styles.fileInput}
+              />
+            </div>
 
-            {formData.images.length === 0 && (
-              <div className={styles.imageRow}>
-                <input
-                  type="url"
-                  value=""
-                  onChange={(e) => handleImageUrlChange(0, e.target.value)}
-                  className={styles.input}
-                  placeholder="https://example.com/image.jpg"
-                  required
-                />
+            {imagePreviews.length > 0 && (
+              <div className={styles.imagePreviews}>
+                {imagePreviews.map((preview, index) => (
+                  <div key={index} className={styles.imagePreview}>
+                    <img src={preview} alt={`Preview ${index + 1}`} className={styles.previewImage} />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className={styles.removeImageButton}
+                    >
+                      ✕
+                    </button>
+                    {index === 0 && <span className={styles.mainImageBadge}>Main Image</span>}
+                  </div>
+                ))}
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={addImageUrl}
-              className={styles.addImageButton}
-            >
-              + Add Another Image
-            </button>
+            {formData.images.length === 0 && (
+              <p className={styles.errorMessage}>At least one image is required</p>
+            )}
           </div>
 
           {/* Description and Location */}
