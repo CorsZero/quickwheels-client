@@ -5,7 +5,7 @@
  * Tech: React + TypeScript + CSS Modules
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../../queries/user.queries';
 import { useVehicleService } from '../../services/VehicleService';
@@ -123,9 +123,9 @@ const MyVehicles = () => {
         }
     }, [myListings, vehicles]);
 
-    // Handle card click to navigate to vehicle details
+    // Handle card click to navigate to vehicle management page
     const handleVehicleClick = (vehicleId: string) => {
-        navigate(`/ad/${vehicleId}`);
+        navigate(`/vehicle-management/${vehicleId}`);
     };
 
     if (!isLoggedIn) {
@@ -133,7 +133,7 @@ const MyVehicles = () => {
             <div className={styles.myVehicles}>
                 <div className={styles.container}>
                     <div className={styles.emptyState}>
-                        <div className={styles.emptyIcon}>🔒</div>
+                        <div className={styles.emptyIcon}>Login Required</div>
                         <h2>Login Required</h2>
                         <p>Please log in to view your listed vehicles.</p>
                         <button className={styles.loginButton} onClick={() => navigate('/login')}>
@@ -165,7 +165,7 @@ const MyVehicles = () => {
                 <div className={styles.container}>
                     <h1 className={styles.title}>My Vehicles</h1>
                     <div className={styles.errorState}>
-                        <div className={styles.errorIcon}>⚠️</div>
+                        <div className={styles.errorIcon}>Error</div>
                         <h2>Something went wrong</h2>
                         <p>{((listingsError as any)?.response?.data?.message) || listingsError?.message || 'Failed to load your vehicles'}</p>
                         <button className={styles.retryButton} onClick={() => window.location.reload()}>
@@ -326,7 +326,7 @@ const MyVehicles = () => {
                     </div>
                 ) : (
                     <div className={styles.emptyState}>
-                        <div className={styles.emptyIcon}>🚗</div>
+                        <div className={styles.emptyIcon}>No Vehicles</div>
                         <h2>No Vehicles Listed</h2>
                         <p>You haven't listed any vehicles yet. Create your first listing!</p>
                         <button className={styles.createButton} onClick={() => navigate('/create-ad')}>

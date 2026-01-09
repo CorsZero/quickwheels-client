@@ -18,6 +18,7 @@ import Profile from '../pages/Profile/Profile';
 import MyRides from '../pages/MyRides/MyRides';
 import MyVehicles from '../pages/MyVehicles/MyVehicles';
 import ScheduledRideDetails from '../pages/ScheduledRideDetails/ScheduledRideDetails';
+import VehicleManagement from '../pages/VehicleManagement/VehicleManagement';
 
 
 export const router = createBrowserRouter([
@@ -64,6 +65,10 @@ export const router = createBrowserRouter([
       {
         path: 'my-vehicles',
         element: <MyVehicles />
+      },
+      {
+        path: 'vehicle-management/:id',
+        element: <VehicleManagement />
       },
       {
         path: 'scheduled-ride/:id',

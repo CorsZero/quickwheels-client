@@ -26,7 +26,14 @@ export const createVehicle = async (formData: FormData) => {
 };
 
 export const updateVehicle = async (vehicleId: string, vehicleData: any) => {
-  const res = await httpVehicle.put(`/vehicles/${vehicleId}`, vehicleData);
+  // Check if vehicleData is already FormData
+  const isFormData = vehicleData instanceof FormData;
+  
+  const res = await httpVehicle.put(`/vehicles/${vehicleId}`, vehicleData, {
+    headers: isFormData ? {
+      'Content-Type': 'multipart/form-data',
+    } : undefined,
+  });
   return res.data;
 };
 
@@ -37,5 +44,12 @@ export const updateVehicleStatus = async (vehicleId: string, status: any) => {
 
 export const removeVehicle = async (vehicleId: string, removalData: any) => {
   const res = await httpVehicle.patch(`/vehicles/${vehicleId}/remove`, removalData);
+  return res.data;
+};
+
+export const deleteVehicleImage = async (vehicleId: string, imageUrl: string) => {
+  const res = await httpVehicle.delete(`/vehicles/${vehicleId}/images`, {
+    data: { imageUrl }
+  });
   return res.data;
 };

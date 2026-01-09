@@ -143,7 +143,7 @@ const CreateAd = () => {
       <div className={styles.createAd}>
         <div className={styles.container}>
           <div className={styles.loginRequired}>
-            <div className={styles.loginIcon}>🔒</div>
+            <div className={styles.loginIcon}>Login Required</div>
             <h2 className={styles.loginTitle}>Login Required</h2>
             <p className={styles.loginMessage}>
               You need to be logged in to create vehicle rental ads.
@@ -166,8 +166,8 @@ const CreateAd = () => {
       <div className={styles.createAd}>
         <div className={styles.container}>
           <div className={styles.success}>
-            <div className={styles.successIcon}>✅</div>
-            <h2 className={styles.successTitle}>Ad Created Successfully!</h2>
+            <div className={styles.successIcon}>✓ Ad Created Successfully!</div>
+            <h2 className={styles.successTitle}>Your Vehicle is Now Listed</h2>
             <p className={styles.successMessage}>
               Your vehicle rental ad has been created and is now live.
             </p>
@@ -215,289 +215,237 @@ const CreateAd = () => {
   return (
     <div className={styles.createAd}>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Rent & Earn Money</h1>
-          <p className={styles.subtitle}>
-            List your vehicle for rent and start earning today
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {/* Basic Information */}
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Basic Information</h3>
-
-            <div className={styles.inputGroup}>
-              <label htmlFor="make" className={styles.label}>
-                Manufacturer *
-              </label>
-              <input
-                type="text"
-                id="make"
-                name="make"
-                value={formData.make}
-                onChange={handleInputChange}
-                className={styles.input}
-                placeholder="e.g., Toyota"
-                required
-              />
+        <div className={styles.formWrapper}>
+          <div className={styles.formCard}>
+            <div className={styles.formHeader}>
+              <h2 className={styles.formTitle}>Fill Vehicle Details</h2>
             </div>
 
-            <div className={styles.inputGroup}>
-              <label htmlFor="model" className={styles.label}>
-                Model *
-              </label>
-              <input
-                type="text"
-                id="model"
-                name="model"
-                value={formData.model}
-                onChange={handleInputChange}
-                className={styles.input}
-                placeholder="e.g., Corolla"
-                required
-              />
-            </div>
+            <form onSubmit={handleSubmit} className={styles.form}>
+              {/* Image Section */}
+              <div className={styles.imageSection}>
+                <div className={styles.imagePlaceholder}>
+                  {imagePreviews.length > 0 ? (
+                    <div className={styles.mainImageDisplay}>
+                      <img src={imagePreviews[0]} alt="Main vehicle" className={styles.mainImage} />
+                    </div>
+                  ) : (
+                    <div className={styles.imagePlus}>+</div>
+                  )}
+                </div>
 
-            <div className={styles.row}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="category" className={styles.label}>
-                  Category *
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  required
-                >
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div className={styles.inputGroup}>
+                  <input
+                    type="file"
+                    id="images"
+                    name="images"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    className={styles.fileInput}
+                  />
+                </div>
 
-              <div className={styles.inputGroup}>
-                <label htmlFor="pricePerDay" className={styles.label}>
-                  Price Per Day (LKR) *
-                </label>
-                <input
-                  type="number"
-                  id="pricePerDay"
-                  name="pricePerDay"
-                  value={formData.pricePerDay || ''}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="e.g., 8500"
-                  min="1"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Vehicle Details */}
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Vehicle Details</h3>
-
-            <div className={styles.row}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="year" className={styles.label}>
-                  Year *
-                </label>
-                <input
-                  type="number"
-                  id="year"
-                  name="year"
-                  value={formData.year}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  min="1980"
-                  max={new Date().getFullYear() + 1}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="transmission" className={styles.label}>
-                  Transmission *
-                </label>
-                <select
-                  id="transmission"
-                  name="transmission"
-                  value={formData.transmission}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  required
-                >
-                  <option value="Automatic">Automatic</option>
-                  <option value="Manual">Manual</option>
-                </select>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="fuelType" className={styles.label}>
-                  Fuel Type *
-                </label>
-                <select
-                  id="fuelType"
-                  name="fuelType"
-                  value={formData.fuelType}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  required
-                >
-                  <option value="Petrol">Petrol</option>
-                  <option value="Diesel">Diesel</option>
-                  <option value="Electric">Electric</option>
-                  <option value="Hybrid">Hybrid</option>
-                </select>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="seats" className={styles.label}>
-                  Seats *
-                </label>
-                <input
-                  type="number"
-                  id="seats"
-                  name="seats"
-                  value={formData.seats}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  min="2"
-                  max="50"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Images */}
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Images *</h3>
-            <p className={styles.sectionDescription}>
-              Upload images for your vehicle. The first image will be used as the main image.
-            </p>
-
-            <div className={styles.inputGroup}>
-              <label htmlFor="images" className={styles.label}>
-                Select Images
-              </label>
-              <input
-                type="file"
-                id="images"
-                name="images"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className={styles.fileInput}
-              />
-            </div>
-
-            {imagePreviews.length > 0 && (
-              <div className={styles.imagePreviews}>
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} className={styles.imagePreview}>
-                    <img src={preview} alt={`Preview ${index + 1}`} className={styles.previewImage} />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className={styles.removeImageButton}
-                    >
-                      ✕
-                    </button>
-                    {index === 0 && <span className={styles.mainImageBadge}>Main Image</span>}
+                {imagePreviews.length > 0 && (
+                  <div className={styles.imageThumbnails}>
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className={styles.thumbnail}>
+                        <img src={preview} alt={`Preview ${index + 1}`} />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className={styles.removeButton}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {formData.images.length === 0 && (
+                  <p className={styles.imageError}>At least one image is required</p>
+                )}
               </div>
-            )}
 
-            {formData.images.length === 0 && (
-              <p className={styles.errorMessage}>At least one image is required</p>
-            )}
-          </div>
+              <h3 className={styles.sectionLabel}>Vehicle Name</h3>
 
-          {/* Description and Location */}
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Additional Details</h3>
+              {/* Vehicle Details Grid */}
+              <div className={styles.fieldsGrid}>
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="make">Manufacturer</label>
+                  <input
+                    type="text"
+                    id="make"
+                    name="make"
+                    value={formData.make}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Toyota"
+                    required
+                  />
+                </div>
 
-            <div className={styles.inputGroup}>
-              <label htmlFor="description" className={styles.label}>
-                Description *
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className={styles.textarea}
-                placeholder="Describe your vehicle, its condition, features, etc."
-                rows={4}
-                required
-              />
-            </div>
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="model">Model</label>
+                  <input
+                    type="text"
+                    id="model"
+                    name="model"
+                    value={formData.model}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Corolla"
+                    required
+                  />
+                </div>
 
-            <div className={styles.row}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="location" className={styles.label}>
-                  Location (City) *
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  value={formData.location}
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="year">Year</label>
+                  <input
+                    type="number"
+                    id="year"
+                    name="year"
+                    value={formData.year}
+                    onChange={handleInputChange}
+                    min="1980"
+                    max={new Date().getFullYear() + 1}
+                    required
+                  />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="category">Type (Category)</label>
+                  <select
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    {categories.map(category => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="location">City</label>
+                  <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Colombo"
+                    required
+                  />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="transmission">Transmission</label>
+                  <select
+                    id="transmission"
+                    name="transmission"
+                    value={formData.transmission}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
+                  </select>
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="fuelType">Fuel Type</label>
+                  <select
+                    id="fuelType"
+                    name="fuelType"
+                    value={formData.fuelType}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="Electric">Electric</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="seats">Seats</label>
+                  <input
+                    type="number"
+                    id="seats"
+                    name="seats"
+                    value={formData.seats}
+                    onChange={handleInputChange}
+                    min="2"
+                    max="50"
+                    required
+                  />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="district">District</label>
+                  <select
+                    id="district"
+                    name="district"
+                    value={formData.district}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Select District</option>
+                    {locations.map(location => (
+                      <option key={location} value={location}>
+                        {location}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label htmlFor="pricePerDay">Price Per Day (LKR)</label>
+                  <input
+                    type="number"
+                    id="pricePerDay"
+                    name="pricePerDay"
+                    value={formData.pricePerDay || ''}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 8500"
+                    min="1"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Optional Details */}
+              <div className={styles.optionalDetails}>
+                <label htmlFor="description">Description & Optional Details</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
                   onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="e.g., Colombo"
+                  placeholder="Describe your vehicle, its condition, features, delivery mode, security deposit info, etc."
+                  rows={5}
                   required
                 />
               </div>
 
-              <div className={styles.inputGroup}>
-                <label htmlFor="district" className={styles.label}>
-                  District *
-                </label>
-                <select
-                  id="district"
-                  name="district"
-                  value={formData.district}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  required
+              {/* Submit Button */}
+              <div className={styles.actions}>
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className={styles.submitButton}
                 >
-                  <option value="">Select District</option>
-                  {locations.map(location => (
-                    <option key={location} value={location}>
-                      {location}
-                    </option>
-                  ))}
-                </select>
+                  {isCreating ? 'Submitting...' : 'SUBMIT'}
+                </button>
               </div>
-            </div>
+            </form>
           </div>
-
-          <div className={styles.actions}>
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className={styles.cancelButton}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isCreating}
-              className={styles.submitButton}
-            >
-              {isCreating ? 'Creating...' : 'Create Ad'}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );

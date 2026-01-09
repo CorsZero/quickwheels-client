@@ -4,6 +4,7 @@ import {
   fetchBookingDetails,
   fetchMyRentals,
   fetchMyRequests,
+  fetchAllIncomingRequests,
   checkAvailability,
   approveBooking,
   rejectBooking,
@@ -29,6 +30,13 @@ export const useMyRentals = () => {
 export const useMyRequests = () => {
   return useMutation({
     mutationFn: (requestData: any) => fetchMyRequests(requestData),
+  });
+};
+
+export const useAllIncomingRequests = () => {
+  return useMutation({
+    mutationFn: ({ status, page = 1, limit = 100 }: { status?: string; page?: number; limit?: number }) =>
+      fetchAllIncomingRequests(status, page, limit),
   });
 };
 

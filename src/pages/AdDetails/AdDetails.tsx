@@ -9,7 +9,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useVehicleService } from '../../services/VehicleService';
 import { useProfile } from '../../queries/user.queries';
-import Alert from '../../components/Alert/Alert';
 import styles from './AdDetails.module.css';
 
 interface VehicleData {
@@ -44,9 +43,6 @@ const AdDetails = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [rentalDays, setRentalDays] = useState(1);
-  const [bookingError, setBookingError] = useState('');
-  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   const isLoggedIn = !!profile?.data;
   const isOwner = profile?.data?.id === vehicle?.ownerId;
@@ -128,7 +124,31 @@ const AdDetails = () => {
     });
   };
 
-  const totalPrice = vehicle ? vehicle.pricePerDay * rentalDays : 0;
+  const handleBookNow = () => {
+    if (!id || !vehicle) {
+      return;
+    }
+
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+
+    if (isOwner) {
+      return;
+    }
+
+    // Handle contact/call functionality
+    console.log('Contact vehicle owner for:', vehicle.make, vehicle.model);
+  };
+
+  const handleLocationClick = () => {
+    if (vehicle) {
+      // Open Google Maps or location service
+      const mapUrl = `https://www.google.com/maps/search/${vehicle.location}+${vehicle.district}`;
+      window.open(mapUrl, '_blank');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -148,7 +168,7 @@ const AdDetails = () => {
       <div className={styles.adDetails}>
         <div className={styles.container}>
           <div className={styles.error}>
-            <div className={styles.errorIcon}>⚠️</div>
+            <div className={styles.errorIcon}>Warning</div>
             <h2 className={styles.errorTitle}>{error || 'Vehicle not found'}</h2>
             <p className={styles.errorMessage}>
               {error === 'Vehicle not found'
@@ -157,10 +177,10 @@ const AdDetails = () => {
             </p>
             <div className={styles.errorActions}>
               <button className={styles.backButton} onClick={() => navigate('/ads')}>
-                ← Browse All Vehicles
+                Browse All Vehicles
               </button>
               <button className={styles.homeButton} onClick={() => navigate('/')}>
-                🏠 Go Home
+                Go Home
               </button>
             </div>
           </div>
@@ -175,30 +195,12 @@ const AdDetails = () => {
         {/* Back Navigation */}
         <div className={styles.navigation}>
           <button className={styles.backLink} onClick={() => navigate(-1)}>
-            ← Back
+            Back
           </button>
           <button className={styles.browseLink} onClick={() => navigate('/ads')}>
             Browse All Vehicles
           </button>
         </div>
-
-        {/* Alert Messages */}
-        {bookingSuccess && (
-          <Alert
-            message="Booking created successfully! Redirecting to My Rides..."
-            type="success"
-            duration={5000}
-            onClose={() => setBookingSuccess(false)}
-          />
-        )}
-        {bookingError && (
-          <Alert
-            message={bookingError}
-            type="error"
-            duration={5000}
-            onClose={() => setBookingError('')}
-          />
-        )}
 
         {/* Main Content */}
         <div className={styles.detailsWrapper}>
@@ -258,46 +260,28 @@ const AdDetails = () => {
 
               <div className={styles.specs}>
                 <div className={styles.specItem}>
-                  <span className={styles.specIcon}>📅</span>
-                  <div>
-                    <div className={styles.specLabel}>Year</div>
-                    <div className={styles.specValue}>{vehicle.year}</div>
-                  </div>
+                  <span className={styles.specLabel}>Year</span>
+                  <span className={styles.specValue}>{vehicle.year}</span>
                 </div>
                 <div className={styles.specItem}>
-                  <span className={styles.specIcon}>🚗</span>
-                  <div>
-                    <div className={styles.specLabel}>Category</div>
-                    <div className={styles.specValue}>{formatCategory(vehicle.category)}</div>
-                  </div>
+                  <span className={styles.specLabel}>Category</span>
+                  <span className={styles.specValue}>{formatCategory(vehicle.category)}</span>
                 </div>
                 <div className={styles.specItem}>
-                  <span className={styles.specIcon}>⚙️</span>
-                  <div>
-                    <div className={styles.specLabel}>Transmission</div>
-                    <div className={styles.specValue}>{formatTransmission(vehicle.transmission)}</div>
-                  </div>
+                  <span className={styles.specLabel}>Transmission</span>
+                  <span className={styles.specValue}>{formatTransmission(vehicle.transmission)}</span>
                 </div>
                 <div className={styles.specItem}>
-                  <span className={styles.specIcon}>⛽</span>
-                  <div>
-                    <div className={styles.specLabel}>Fuel Type</div>
-                    <div className={styles.specValue}>{formatFuelType(vehicle.fuelType)}</div>
-                  </div>
+                  <span className={styles.specLabel}>Fuel Type</span>
+                  <span className={styles.specValue}>{formatFuelType(vehicle.fuelType)}</span>
                 </div>
                 <div className={styles.specItem}>
-                  <span className={styles.specIcon}>👥</span>
-                  <div>
-                    <div className={styles.specLabel}>Seats</div>
-                    <div className={styles.specValue}>{vehicle.seats}</div>
-                  </div>
+                  <span className={styles.specLabel}>Seats</span>
+                  <span className={styles.specValue}>{vehicle.seats}</span>
                 </div>
                 <div className={styles.specItem}>
-                  <span className={styles.specIcon}>📍</span>
-                  <div>
-                    <div className={styles.specLabel}>Location</div>
-                    <div className={styles.specValue}>{vehicle.location}, {vehicle.district}</div>
-                  </div>
+                  <span className={styles.specLabel}>Location</span>
+                  <span className={styles.specValue}>{vehicle.location}, {vehicle.district}</span>
                 </div>
               </div>
 
@@ -312,7 +296,7 @@ const AdDetails = () => {
                   <div className={styles.featuresList}>
                     {vehicle.features.map((feature, index) => (
                       <span key={index} className={styles.featureTag}>
-                        ✓ {feature}
+                        {feature}
                       </span>
                     ))}
                   </div>
@@ -334,59 +318,27 @@ const AdDetails = () => {
             </div>
           </div>
 
-          {/* Right Column - Booking Card */}
+          {/* Right Column - Action Card */}
           <div className={styles.rightColumn}>
-            <div className={styles.bookingCard}>
+            <div className={styles.actionCard}>
               <div className={styles.priceSection}>
-                <div className={styles.priceLabel}>Price per day</div>
+                <div className={styles.priceLabel}>Price Per Day</div>
                 <div className={styles.priceValue}>LKR {vehicle.pricePerDay.toLocaleString()}</div>
+              </div>
+
+              <div className={styles.locationBadge}>
+                {vehicle.location} - {vehicle.district}
               </div>
 
               <div className={styles.divider}></div>
 
-              <div className={styles.rentalSection}>
-                <label htmlFor="rentalDays" className={styles.rentalLabel}>
-                  Number of days
-                </label>
-                <input
-                  id="rentalDays"
-                  type="number"
-                  min="1"
-                  max="30"
-                  value={rentalDays}
-                  onChange={(e) => setRentalDays(Math.max(1, parseInt(e.target.value) || 1))}
-                  className={styles.rentalInput}
-                />
-              </div>
-
-              <div className={styles.totalSection}>
-                <span className={styles.totalLabel}>Total</span>
-                <span className={styles.totalValue}>LKR {totalPrice.toLocaleString()}</span>
-              </div>
-
-              {isOwner ? (
-                <div className={styles.ownerNotice}>
-                  <span>🔒</span>
-                  <span>This is your vehicle listing</span>
-                </div>
-              ) : vehicle.status !== 'AVAILABLE' ? (
-                <button className={styles.bookingButtonDisabled} disabled>
-                  Not Available
+              <div className={styles.actionButtons}>
+                <button className={styles.callButton} onClick={handleBookNow}>
+                  Call
                 </button>
-              ) : !isLoggedIn ? (
-                <button className={styles.bookingButton} onClick={() => navigate('/login')}>
-                  Login to Book
+                <button className={styles.locationButton} onClick={handleLocationClick}>
+                  View Location
                 </button>
-              ) : (
-                <button className={styles.bookingButton} >
-                  Book Now
-                </button>
-              )}
-
-              <div className={styles.bookingNote}>
-                <p>✓ Instant confirmation</p>
-                <p>✓ Free cancellation up to 24 hours</p>
-                <p>✓ Secure payment</p>
               </div>
             </div>
           </div>
