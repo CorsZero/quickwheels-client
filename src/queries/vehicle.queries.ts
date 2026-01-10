@@ -7,6 +7,7 @@ import {
   updateVehicle,
   updateVehicleStatus,
   removeVehicle,
+  deleteVehicleImage,
 } from "../api/vehicle.api";
 
 // queries/vehicle.queries.ts
@@ -32,7 +33,7 @@ export const useMyListings = (page: number = 1, limit: number = 10, enabled: boo
 export const useCreateVehicle = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createVehicle,
+    mutationFn: (formData: FormData) => createVehicle(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       queryClient.invalidateQueries({ queryKey: ["myListings"] });
@@ -73,6 +74,19 @@ export const useRemoveVehicle = () => {
       removeVehicle(vehicleId, removalData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["myListings"] });
+    },
+  });
+};
+
+export const useDeleteVehicleImage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ vehicleId, imageUrl }: { vehicleId: string; imageUrl: string }) =>
+      deleteVehicleImage(vehicleId, imageUrl),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["vehicle", variables.vehicleId] });
       queryClient.invalidateQueries({ queryKey: ["myListings"] });
     },
   });

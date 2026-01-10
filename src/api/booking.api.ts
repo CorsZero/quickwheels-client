@@ -23,6 +23,13 @@ export const fetchMyRequests = async (requestData: any) => {
   return res.data;
 };
 
+export const fetchAllIncomingRequests = async (status?: string, page: number = 1, limit: number = 100) => {
+  const params = new URLSearchParams({ page: page.toString(), limit: limit.toString() });
+  if (status) params.append('status', status);
+  const res = await httpBooking.get(`/bookings/all-requests?${params.toString()}`);
+  return res.data;
+};
+
 export const checkAvailability = async (vehicleId: string, startDate: string, endDate: string) => {
   const res = await httpBooking.get(`/bookings/availability/${vehicleId}?startDate=${startDate}&endDate=${endDate}`);
   return res.data;

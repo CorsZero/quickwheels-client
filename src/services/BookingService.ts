@@ -2,6 +2,7 @@ import {
     useBookingDetails,
     useMyRentals,
     useMyRequests,
+    useAllIncomingRequests,
     useAvailability,
     useCreateBooking,
     useApproveBooking,
@@ -18,6 +19,7 @@ export const useBookingService = () => {
     const bookingDetails = useBookingDetails();
     const myRentals = useMyRentals();
     const myRequests = useMyRequests();
+    const allIncomingRequests = useAllIncomingRequests();
     const availability = useAvailability();
     const approveBooking = useApproveBooking();
     const rejectBooking = useRejectBooking();
@@ -72,7 +74,7 @@ export const useBookingService = () => {
         onError?: (error: any) => void
     ) => {
         myRequests.mutate(
-            { ownerVehicleIds },
+            { VehicleIds: ownerVehicleIds },
             {
                 onSuccess: (data) => {
                     console.log("My Requests:", data.data);
@@ -80,6 +82,28 @@ export const useBookingService = () => {
                 },
                 onError: (error: any) => {
                     console.log('Get requests error:', error.response?.data);
+                    onError?.(error);
+                }
+            }
+        );
+    };
+
+    const GetAllIncomingRequests = (
+        status?: string,
+        page: number = 1,
+        limit: number = 100,
+        onSuccess?: (data: any) => void,
+        onError?: (error: any) => void
+    ) => {
+        allIncomingRequests.mutate(
+            { status, page, limit },
+            {
+                onSuccess: (data) => {
+                    console.log("All Incoming Requests:", data.data);
+                    onSuccess?.(data);
+                },
+                onError: (error: any) => {
+                    console.log('Get all incoming requests error:', error.response?.data);
                     onError?.(error);
                 }
             }
@@ -297,6 +321,7 @@ export const useBookingService = () => {
         GetBookingDetails,
         GetMyRentals,
         GetMyRequests,
+        GetAllIncomingRequests,
         CheckAvailability,
         CreateBooking,
         ApproveBooking,
@@ -308,6 +333,7 @@ export const useBookingService = () => {
             bookingDetails: bookingDetails.isPending,
             myRentals: myRentals.isPending,
             myRequests: myRequests.isPending,
+            allIncomingRequests: allIncomingRequests.isPending,
             availability: availability.isPending,
             createBooking: createBooking.isPending,
             approveBooking: approveBooking.isPending,

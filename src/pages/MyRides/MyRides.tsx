@@ -53,7 +53,7 @@ const MyRides = () => {
     return (
         <div className={styles.myRides}>
             <div className={styles.container}>
-                <h1 className={styles.title}>My Scheduled Rides</h1>
+                <h1 className={styles.title}>Ride a Vehicle</h1>
 
                 {user.bookedRides && user.bookedRides.length > 0 ? (
                     <div className={styles.ridesGrid}>
