@@ -3,6 +3,7 @@ import {
     useLogin,
     useRegister,
     useUpdateProfile,
+    useDeleteProfileImage,
     useLogout,
     useForgotPassword,
     useResetPassword,
@@ -14,6 +15,7 @@ export const useUserService = () => {
     const loginMutation = useLogin();
     const registerUser = useRegister();
     const updateProfile = useUpdateProfile();
+    const deleteProfileImage = useDeleteProfileImage();
     const logout = useLogout();
     const forgotPassword = useForgotPassword();
     const resetPassword = useResetPassword();
@@ -133,6 +135,52 @@ export const useUserService = () => {
         );
     };
 
+    // Update profile with image support
+    const UpdateProfileWithImage = (
+        data: { fullName?: string; phone?: string; profileImage?: File },
+        onSuccess?: (data: any) => void,
+        onError?: (error: any) => void
+    ) => {
+        const formData = new FormData();
+        if (data.fullName) formData.append('FullName', data.fullName);
+        if (data.phone) formData.append('Phone', data.phone);
+        if (data.profileImage) formData.append('ProfileImage', data.profileImage);
+
+        updateProfile.mutate(
+            formData,
+            {
+                onSuccess: (response) => {
+                    console.log(response.message);
+                    onSuccess?.(response);
+                },
+                onError: (error: any) => {
+                    console.log(error.response?.data?.message);
+                    onError?.(error);
+                }
+            }
+        );
+    };
+
+    // Delete profile image
+    const DeleteProfileImage = (
+        onSuccess?: (data: any) => void,
+        onError?: (error: any) => void
+    ) => {
+        deleteProfileImage.mutate(
+            undefined,
+            {
+                onSuccess: (response) => {
+                    console.log(response.message || 'Profile image deleted');
+                    onSuccess?.(response);
+                },
+                onError: (error: any) => {
+                    console.log(error.response?.data?.message);
+                    onError?.(error);
+                }
+            }
+        );
+    };
+
     const GetUserProfile = (
         onSuccess?: (data: any) => void,
         onError?: (error: any) => void
@@ -201,6 +249,8 @@ export const useUserService = () => {
         ForgotPassword,
         LogoutUser,
         UpdateProfile,
+        UpdateProfileWithImage,
+        DeleteProfileImage,
         GetUserProfile,
         LoginUser,
         RegisterUser,
@@ -210,6 +260,7 @@ export const useUserService = () => {
             forgotPassword: forgotPassword.isPending,
             logout: logout.isPending,
             updateProfile: updateProfile.isPending,
+            deleteProfileImage: deleteProfileImage.isPending,
             login: loginMutation.isPending,
             register: registerUser.isPending
         }
