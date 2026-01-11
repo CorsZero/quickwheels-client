@@ -12,7 +12,6 @@ import Alert from '../../components/Alert/Alert';
 import styles from './ProfileModal.module.css';
 import profileIcon from '../../assets/profileAssets/profile.svg';
 import emailIcon from '../../assets/profileAssets/email.svg';
-import nicIcon from '../../assets/profileAssets/nic.svg';
 import locationIcon from '../../assets/profileAssets/location.svg';
 import mobileIcon from '../../assets/profileAssets/mobile number.svg';
 
@@ -32,6 +31,7 @@ const Profile = () => {
     name: profile.data.fullName || profile.data.name || '',
     email: profile.data.email || '',
     phone: profile.data.phone || '',
+    address: profile.data.address || '',
     profileImage: profile.data.profileImage || null
   } : null;
 
@@ -41,7 +41,6 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    nic: '',
     address: '',
     mobile: ''
   });
@@ -56,8 +55,7 @@ const Profile = () => {
       setFormData({
         name: user.name,
         email: user.email,
-        nic: '',
-        address: '',
+        address: user.address,
         mobile: user.phone
       });
     }
@@ -113,6 +111,7 @@ const Profile = () => {
       {
         fullName: formData.name,
         phone: formData.mobile,
+        address: formData.address,
         profileImage: newProfileImage || undefined
       },
       () => {
@@ -289,23 +288,6 @@ const Profile = () => {
                 className={styles.formInput}
                 placeholder="Enter your email"
                 disabled
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>
-                <span className={styles.labelIcon}>
-                  <img src={nicIcon} alt="" className={styles.iconImg} />
-                </span>
-                NIC no:
-              </label>
-              <input
-                type="text"
-                name="nic"
-                value={formData.nic}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="Enter your NIC number"
               />
             </div>
 

@@ -123,6 +123,14 @@
   height: 24px;
 }
 
+.avatarImg {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+}
+
 .profileName {
   margin-right: 0.5rem;
   color: white;

@@ -137,13 +137,14 @@ export const useUserService = () => {
 
     // Update profile with image support
     const UpdateProfileWithImage = (
-        data: { fullName?: string; phone?: string; profileImage?: File },
+        data: { fullName?: string; phone?: string; address?: string; profileImage?: File },
         onSuccess?: (data: any) => void,
         onError?: (error: any) => void
     ) => {
         const formData = new FormData();
         if (data.fullName) formData.append('FullName', data.fullName);
         if (data.phone) formData.append('Phone', data.phone);
+        if (data.address) formData.append('Address', data.address);
         if (data.profileImage) formData.append('ProfileImage', data.profileImage);
 
         updateProfile.mutate(
