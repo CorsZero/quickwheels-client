@@ -43,6 +43,100 @@
   flex-wrap: wrap;
 }
 
+/* Compact action buttons for inline use under input */
+.compactActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Professional, subtle inline button style */
+.compactButton {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid #e6e7eb;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+  min-width: 140px;
+  box-shadow: none;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compactButton:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #d1d5db;
+}
+
+.compactButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.compactButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+/* Inline spinner used inside buttons while loading */
+.buttonSpinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0,0,0,0.12);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.compactPrimary {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  font-weight: 600;
+}
+
+.compactPrimary:hover:not(:disabled) {
+  background: #0b1220;
+  border-color: #0b1220;
+}
+
+.compactPrimary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.compactSecondary {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #e2e8f0;
+  font-weight: 600;
+}
+
+.compactSecondary:hover:not(:disabled) {
+  background: #eef2f7;
+  border-color: #dbe6f0;
+}
+
+.compactSecondary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 .selectButton,
 .currentButton {
   flex: 1;

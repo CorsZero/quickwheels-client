@@ -152,8 +152,8 @@ const AdDetails = () => {
         const mapUrl = `https://www.google.com/maps?q=${vehicle.latitude},${vehicle.longitude}`;
         window.open(mapUrl, '_blank');
       } else {
-        // Fallback to search by location name
-        const mapUrl = `https://www.google.com/maps/search/${vehicle.location}+${vehicle.district}`;
+        // Fallback to search by location name (use only location from API)
+        const mapUrl = `https://www.google.com/maps/search/${encodeURIComponent(vehicle.location)}`;
         window.open(mapUrl, '_blank');
       }
     }
@@ -290,7 +290,7 @@ const AdDetails = () => {
                 </div>
                 <div className={styles.specItem}>
                   <span className={styles.specLabel}>Location</span>
-                  <span className={styles.specValue}>{vehicle.location}, {vehicle.district}</span>
+                  <span className={styles.specValue}>{vehicle.location}</span>
                 </div>
               </div>
 
@@ -336,7 +336,7 @@ const AdDetails = () => {
               </div>
 
               <div className={styles.locationBadge}>
-                {vehicle.location} - {vehicle.district}
+                {vehicle.location}
               </div>
 
               <div className={styles.divider}></div>
@@ -349,7 +349,7 @@ const AdDetails = () => {
                   <LocationView
                     latitude={vehicle.latitude}
                     longitude={vehicle.longitude}
-                    locationName={`${vehicle.location}, ${vehicle.district}`}
+                    locationName={vehicle.location}
                     vehicleName={`${vehicle.make} ${vehicle.model}`}
                   />
                 ) : (

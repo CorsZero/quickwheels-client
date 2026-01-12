@@ -25,6 +25,7 @@ interface LocationPickerProps {
     onLocationSelect: (lat: number, lng: number) => void;
     initialLat?: number;
     initialLng?: number;
+    compact?: boolean;
 }
 
 interface LocationMarkerProps {
@@ -54,7 +55,7 @@ const RecenterMap = ({ lat, lng }: { lat: number; lng: number }) => {
     return null;
 };
 
-const LocationPicker = ({ onLocationSelect, initialLat, initialLng }: LocationPickerProps) => {
+const LocationPicker = ({ onLocationSelect, initialLat, initialLng, compact }: LocationPickerProps) => {
     // Default to Colombo, Sri Lanka
     const defaultLat = 6.9271;
     const defaultLng = 79.8612;
@@ -119,36 +120,41 @@ const LocationPicker = ({ onLocationSelect, initialLat, initialLng }: LocationPi
 
     return (
         <div className={styles.locationPicker}>
-            {/* Location Display */}
-            <div className={styles.locationDisplay}>
-                {position ? (
-                    <div className={styles.selectedLocation}>
-                        <span className={styles.locationIcon}>📍</span>
-                        <span className={styles.coordinates}>
-                            {position[0].toFixed(6)}, {position[1].toFixed(6)}
-                        </span>
-                    </div>
-                ) : (
-                    <span className={styles.noLocation}>No location selected</span>
-                )}
-            </div>
+            {!compact && (
+                <div className={styles.locationDisplay}>
+                    {position ? (
+                        <div className={styles.selectedLocation}>
+                            <span className={styles.locationIcon}>📍</span>
+                            <span className={styles.locationText}>Location selected</span>
+                        </div>
+                    ) : (
+                        <span className={styles.noLocation}>No location selected</span>
+                    )}
+                </div>
+            )}
 
-            {/* Action Buttons */}
-            <div className={styles.actions}>
+            <div className={compact ? styles.compactActions : styles.actions}>
                 <button
                     type="button"
-                    className={styles.selectButton}
+                    className={compact ? `${styles.compactButton} ${styles.compactPrimary}` : styles.selectButton}
                     onClick={openModal}
                 >
-                    📍 Select on Map
+                    Select on Map
                 </button>
                 <button
                     type="button"
-                    className={styles.currentButton}
+                    className={compact ? `${styles.compactButton} ${styles.compactSecondary}` : styles.currentButton}
                     onClick={getCurrentLocation}
                     disabled={isLoadingLocation}
                 >
-                    {isLoadingLocation ? '⏳ Getting...' : '🎯 Use Current Location'}
+                    {isLoadingLocation ? (
+                        <span className={styles.buttonSpinner} aria-live="polite">
+                            <span className={styles.spinner} />
+                            Getting...
+                        </span>
+                    ) : (
+                        'Use Current Location'
+                    )}
                 </button>
             </div>
 
@@ -181,7 +187,7 @@ const LocationPicker = ({ onLocationSelect, initialLat, initialLng }: LocationPi
 
                             {position && (
                                 <div className={styles.selectedInfo}>
-                                    <strong>Selected:</strong> {position[0].toFixed(6)}, {position[1].toFixed(6)}
+                                    <strong>Selected:</strong> Location selected
                                 </div>
                             )}
                         </div>
@@ -192,8 +198,16 @@ const LocationPicker = ({ onLocationSelect, initialLat, initialLng }: LocationPi
                                 className={styles.useCurrentBtn}
                                 onClick={getCurrentLocation}
                                 disabled={isLoadingLocation}
+                                aria-busy={isLoadingLocation}
                             >
-                                {isLoadingLocation ? 'Getting Location...' : '🎯 Use My Location'}
+                                {isLoadingLocation ? (
+                                    <span className={styles.buttonSpinner} aria-live="polite">
+                                        <span className={styles.spinner} />
+                                        Getting Location...
+                                    </span>
+                                ) : (
+                                    '🎯 Use My Location'
+                                )}
                             </button>
                             <button
                                 type="button"

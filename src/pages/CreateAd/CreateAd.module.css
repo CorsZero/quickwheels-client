@@ -179,6 +179,13 @@
   flex-direction: column;
 }
 
+.inlineLocationActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
 .fieldGroup label {
   font-size: 0.9rem;
   font-weight: 500;
