@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useVehicleService } from '../../services/VehicleService';
 import { useProfile } from '../../queries/user.queries';
+import { LocationView } from '../../components/LocationView';
 import styles from './AdDetails.module.css';
 
 interface VehicleData {
@@ -24,6 +25,8 @@ interface VehicleData {
   pricePerDay: number;
   location: string;
   district: string;
+  latitude: number | null;
+  longitude: number | null;
   description: string;
   features: string[];
   images: string[];
@@ -144,9 +147,15 @@ const AdDetails = () => {
 
   const handleLocationClick = () => {
     if (vehicle) {
-      // Open Google Maps or location service
-      const mapUrl = `https://www.google.com/maps/search/${vehicle.location}+${vehicle.district}`;
-      window.open(mapUrl, '_blank');
+      // If we have coordinates, open Google Maps with them
+      if (vehicle.latitude && vehicle.longitude) {
+        const mapUrl = `https://www.google.com/maps?q=${vehicle.latitude},${vehicle.longitude}`;
+        window.open(mapUrl, '_blank');
+      } else {
+        // Fallback to search by location name
+        const mapUrl = `https://www.google.com/maps/search/${vehicle.location}+${vehicle.district}`;
+        window.open(mapUrl, '_blank');
+      }
     }
   };
 
@@ -336,9 +345,18 @@ const AdDetails = () => {
                 <button className={styles.callButton} onClick={handleBookNow}>
                   Call
                 </button>
-                <button className={styles.locationButton} onClick={handleLocationClick}>
-                  View Location
-                </button>
+                {vehicle.latitude && vehicle.longitude ? (
+                  <LocationView
+                    latitude={vehicle.latitude}
+                    longitude={vehicle.longitude}
+                    locationName={`${vehicle.location}, ${vehicle.district}`}
+                    vehicleName={`${vehicle.make} ${vehicle.model}`}
+                  />
+                ) : (
+                  <button className={styles.locationButton} onClick={handleLocationClick}>
+                    View Location
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -234,6 +234,25 @@
   box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
 }
 
+/* Location Section */
+.locationSection {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.locationSection .sectionLabel {
+  margin-bottom: 0.5rem;
+}
+
+.locationHint {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
 /* Login Required */
 .loginRequired {
   background: white;

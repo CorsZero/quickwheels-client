@@ -5,10 +5,11 @@
  * Tech: React + TypeScript + CSS Modules
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../../queries/user.queries';
 import { useVehicleService } from '../../services/VehicleService';
+import { LocationPicker } from '../../components/LocationPicker';
 import type { Vehicle } from '../../services/api';
 import styles from './CreateAd.module.css';
 
@@ -33,6 +34,8 @@ const CreateAd = () => {
     pricePerDay: 0,
     location: '',
     district: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
     description: '',
     features: [] as string[],
     images: [] as File[]
@@ -44,6 +47,14 @@ const CreateAd = () => {
 
   const categories: Vehicle['category'][] = ['CAR', 'VAN', 'SUV', 'BIKE'];
   const locations = ['Colombo', 'Kandy', 'Galle', 'Negombo', 'Matara', 'Jaffna', 'Kurunegala', 'Anuradhapura', 'Badulla', 'Ratnapura'];
+
+  const handleLocationSelect = useCallback((lat: number, lng: number) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -197,6 +208,8 @@ const CreateAd = () => {
                     pricePerDay: 0,
                     location: '',
                     district: '',
+                    latitude: null,
+                    longitude: null,
                     description: '',
                     features: [],
                     images: []
@@ -417,6 +430,19 @@ const CreateAd = () => {
                     required
                   />
                 </div>
+              </div>
+
+              {/* Map Location Section */}
+              <div className={styles.locationSection}>
+                <h3 className={styles.sectionLabel}>Vehicle Location (Map)</h3>
+                <p className={styles.locationHint}>
+                  Select the exact pickup location for your vehicle on the map
+                </p>
+                <LocationPicker
+                  onLocationSelect={handleLocationSelect}
+                  initialLat={formData.latitude ?? undefined}
+                  initialLng={formData.longitude ?? undefined}
+                />
               </div>
 
               {/* Optional Details */}
