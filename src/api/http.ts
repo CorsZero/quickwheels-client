@@ -46,7 +46,7 @@ const createResponseErrorInterceptor = (client: AxiosInstance, _serviceName: str
     try {
       // Refresh uses HttpOnly cookies - no token in body
       await axios.post(
-        `${import.meta.env.VITE_AUTH_API_BASE_URL}/auth/refresh`,
+        '/api/auth/refresh',
         {},
         { withCredentials: true }
       );
@@ -95,17 +95,17 @@ const setupInterceptors = (client: AxiosInstance, serviceName: string) => {
 
 // Create HTTP clients with credentials (cookies sent automatically)
 export const httpVehicle = axios.create({
-  baseURL: import.meta.env.VITE_VEHICLE_API_BASE_URL as string,
+  baseURL: '/api',
   withCredentials: true, // Send/receive HttpOnly cookies
 });
 
 export const httpBooking = axios.create({
-  baseURL: import.meta.env.VITE_BOOKING_API_BASE_URL as string,
+  baseURL: '/api',
   withCredentials: true,
 });
 
 export const httpAuth = axios.create({
-  baseURL: import.meta.env.VITE_AUTH_API_BASE_URL as string,
+  baseURL: '/api',
   withCredentials: true,
 });
 
