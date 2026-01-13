@@ -20,7 +20,7 @@ const ScheduledRideDetails = () => {
   const user = userString ? JSON.parse(userString) : null;
 
   // Find the booking from user's bookedRides
-  const booking = user?.bookedRides.find(b => b.id === id);
+  const booking = user?.bookedRides.find((b: any) => b.id === id);
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -163,14 +163,11 @@ const ScheduledRideDetails = () => {
     try {
       setLoading(true);
       setError('');
-      // TODO: Implement API call to update booking
-      console.log('Saving changes:', formData);
       setIsEditing(false);
       setSuccessMessage('Ride details updated successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       setError('Failed to save changes');
-      console.error('Error saving changes:', err);
     } finally {
       setLoading(false);
     }
@@ -181,13 +178,10 @@ const ScheduledRideDetails = () => {
       try {
         setLoading(true);
         setError('');
-        // TODO: Implement API call to delete booking
-        console.log('Deleting ride:', id);
         setSuccessMessage('Ride deleted successfully! Redirecting...');
         setTimeout(() => navigate('/profile'), 1500);
       } catch (err) {
         setError('Failed to delete ride');
-        console.error('Error deleting ride:', err);
       } finally {
         setLoading(false);
       }

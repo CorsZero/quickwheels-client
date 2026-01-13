@@ -52,7 +52,7 @@ const LocationView = ({ latitude, longitude, locationName, vehicleName }: Locati
                 className={styles.viewButton}
                 onClick={openModal}
             >
-                📍 View Location
+                View Location
             </button>
 
             {isModalOpen && (
@@ -64,12 +64,7 @@ const LocationView = ({ latitude, longitude, locationName, vehicleName }: Locati
                         </div>
 
                         <div className={styles.modalBody}>
-                            {locationName && (
-                                <div className={styles.locationInfo}>
-                                    <span className={styles.locationIcon}>📍</span>
-                                    <span>{locationName}</span>
-                                </div>
-                            )}
+                            {/* location name display removed per UX request */}
 
                             <div className={styles.mapContainer}>
                                 <MapContainer
@@ -91,9 +86,7 @@ const LocationView = ({ latitude, longitude, locationName, vehicleName }: Locati
                                 </MapContainer>
                             </div>
 
-                            <div className={styles.coordinates}>
-                                <strong>Coordinates:</strong> {latitude.toFixed(6)}, {longitude.toFixed(6)}
-                            </div>
+                            {/* coordinates removed to avoid exposing raw lat/lng in UI */}
                         </div>
 
                         <div className={styles.modalFooter}>

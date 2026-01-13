@@ -95,7 +95,6 @@ const LocationPicker = ({ onLocationSelect, initialLat, initialLng, compact }: L
                 setIsLoadingLocation(false);
             },
             (error) => {
-                console.error('Error getting location:', error);
                 alert('Unable to get your location. Please select manually on the map.');
                 setIsLoadingLocation(false);
             },

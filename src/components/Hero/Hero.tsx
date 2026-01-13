@@ -13,12 +13,10 @@ const Hero = () => {
 
   const handleSearch = async () => {
     // Search functionality can be implemented later with VehicleService
-    console.log('Search:', searchInput, 'Category:', selectedCategory);
   };
 
   const handleCategoryChange = async (category: string) => {
     setSelectedCategory(category);
-    console.log('Category changed to:', category);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -28,11 +28,9 @@ const Navbar = () => {
       () => {
         setIsProfileDropdownOpen(false);
         navigate('/');
-        window.location.reload(); // Reload to clear profile cache
+        window.location.reload();
       },
       (error) => {
-        console.error('Logout error:', error);
-        // Even on error, navigate to home
         setIsProfileDropdownOpen(false);
         navigate('/');
         window.location.reload();

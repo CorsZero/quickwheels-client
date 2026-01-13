@@ -42,8 +42,8 @@ const MyVehicles = () => {
     // Use VehicleService with enableMyListings flag set to true when logged in
     const { myListings, listingsLoading, listingsHasError, listingsError } = useVehicleService(isLoggedIn);
 
-    // Extract vehicles from the response
-    const vehicles: Vehicle[] = myListings?.data?.vehicles || [];
+    // Extract vehicles from the response and filter out removed/inactive vehicles
+    const vehicles: Vehicle[] = (myListings?.data?.vehicles || []).filter((vehicle: Vehicle) => vehicle.isActive);
 
     // Helper to construct full image URL
     const getImageUrl = (imagePath: string | undefined): string => {
@@ -118,8 +118,7 @@ const MyVehicles = () => {
     // Log the data for debugging
     useEffect(() => {
         if (myListings) {
-            console.log('MyVehicles - Full API Response:', myListings);
-            console.log('MyVehicles - Vehicles Array:', vehicles);
+            // Data available for debugging if needed
         }
     }, [myListings, vehicles]);
 

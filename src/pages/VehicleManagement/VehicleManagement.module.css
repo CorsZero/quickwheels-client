@@ -678,3 +678,133 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Management Actions - cleaner, professional style */
+.managementActions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eef2f4;
+    justify-content: flex-end;
+}
+
+.maintenanceButton {
+    flex: 0 0 auto;
+    background: transparent;
+    color: #374151;
+    border: 1px solid #cbd5db;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+}
+
+.maintenanceButton:hover:not(:disabled) {
+    background: rgba(55, 65, 81, 0.04);
+    border-color: #aab4bc;
+}
+
+.maintenanceButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.maintenanceActive {
+    background: rgba(16, 185, 129, 0.12);
+    color: #065f46;
+    border-color: rgba(16, 185, 129, 0.24);
+}
+
+.maintenanceActive:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.16);
+}
+
+.removeVehicleButton {
+    flex: 0 0 auto;
+    background: transparent;
+    color: #b91c1c;
+    border: 1px solid rgba(185, 28, 28, 0.12);
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+}
+
+.removeVehicleButton:hover:not(:disabled) {
+    background: rgba(185, 28, 28, 0.06);
+    border-color: rgba(185, 28, 28, 0.2);
+}
+
+.removeVehicleButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Modal Styles */
+.modalTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.75rem;
+}
+
+.modalText {
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+}
+
+.modalInput {
+    margin-bottom: 1.5rem;
+}
+
+.modalInput label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.modalInput textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.modalInput textarea:focus {
+    outline: none;
+    border-color: #1f2937;
+}
+
+.confirmRemoveButton {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.confirmRemoveButton:hover:not(:disabled) {
+    background: #dc2626;
+}
+
+.confirmRemoveButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

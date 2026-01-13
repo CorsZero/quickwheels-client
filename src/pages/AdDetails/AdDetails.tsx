@@ -140,9 +140,6 @@ const AdDetails = () => {
     if (isOwner) {
       return;
     }
-
-    // Handle contact/call functionality
-    console.log('Contact vehicle owner for:', vehicle.make, vehicle.model);
   };
 
   const handleLocationClick = () => {

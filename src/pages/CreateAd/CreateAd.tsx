@@ -52,8 +52,19 @@ const CreateAd = () => {
   const getAddressFromCoordinates = async (lat: number, lng: number) => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'QuickWheels/1.0'
+          }
+        }
       );
+
+      if (!response.ok) {
+        console.error('Geocoding API error:', response.status, response.statusText);
+        return '';
+      }
+
       const data = await response.json();
 
       if (data && data.address) {
@@ -68,11 +79,14 @@ const CreateAd = () => {
         if (data.address.village) addressParts.push(data.address.village);
 
         // Return the first 2-3 parts to keep it concise
-        return addressParts.slice(0, 3).join(', ');
+        const addressString = addressParts.slice(0, 3).join(', ');
+        console.log('Address found:', addressString);
+        return addressString;
       }
+      console.log('No address data found in response');
       return '';
     } catch (error) {
-      console.error('Error fetching address:', error);
+      console.error('Error getting address from coordinates:', error);
       return '';
     }
   };
@@ -133,42 +147,26 @@ const CreateAd = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('Form submitted with data:', formData);
-
     if (!isLoggedIn) {
-      console.log('User not logged in, redirecting...');
       navigate('/login');
       return;
     }
 
     // Validate form
     if (!formData.make || !formData.model || !formData.category || formData.images.length === 0 || formData.pricePerDay <= 0 || !formData.location || !formData.district) {
-      console.log('Validation failed:', {
-        make: formData.make,
-        model: formData.model,
-        category: formData.category,
-        imagesCount: formData.images.length,
-        pricePerDay: formData.pricePerDay,
-        location: formData.location,
-        district: formData.district
-      });
       alert('Please fill in all required fields');
       return;
     }
 
-    console.log('Validation passed, calling CreateVehicle...');
-
     CreateVehicle(
       formData,
       (response) => {
-        console.log('Vehicle created successfully:', response);
         if (response?.data?.vehicle?.id) {
           setNewAdId(response.data.vehicle.id);
           setSuccess(true);
         }
       },
       (errorMsg) => {
-        console.error('Error creating ad:', errorMsg);
         alert('Error creating ad. Check console for details.');
       }
     );

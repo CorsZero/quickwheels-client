@@ -60,15 +60,8 @@ const createResponseErrorInterceptor = (client: AxiosInstance, _serviceName: str
       processQueue(refreshError);
       isRefreshing = false;
 
-      // Don't redirect if on api-testing, register, login, or forgot-password page
-      if (!window.location.pathname.includes('/api-testing') && 
-          !window.location.pathname.includes('/api') && 
-          !window.location.pathname.includes('/register') &&
-          !window.location.pathname.includes('/login') &&
-          !window.location.pathname.includes('/forgot-password')) {
-        window.location.href = '/login';
-      }
-
+      // Let the component handle the 401 error
+      // Don't auto-redirect - viewing public content doesn't require auth
       return Promise.reject(refreshError);
     }
   }
