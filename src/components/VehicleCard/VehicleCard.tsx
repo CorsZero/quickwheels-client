@@ -65,9 +65,6 @@ const VehicleCard = ({ vehicle, onClick }: VehicleCardProps) => {
     seats: vehicle.seats || 0
   };
 
-  console.log('VehicleCard - Original vehicle:', vehicle);
-  console.log('VehicleCard - Processed image URL:', vehicleData.image);
-
   return (
     <article
       className={styles.card}

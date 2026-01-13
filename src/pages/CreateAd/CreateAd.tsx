@@ -5,10 +5,11 @@
  * Tech: React + TypeScript + CSS Modules
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '../../queries/user.queries';
 import { useVehicleService } from '../../services/VehicleService';
+import { LocationPicker } from '../../components/LocationPicker';
 import type { Vehicle } from '../../services/api';
 import styles from './CreateAd.module.css';
 
@@ -33,6 +34,8 @@ const CreateAd = () => {
     pricePerDay: 0,
     location: '',
     district: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
     description: '',
     features: [] as string[],
     images: [] as File[]
@@ -44,6 +47,67 @@ const CreateAd = () => {
 
   const categories: Vehicle['category'][] = ['CAR', 'VAN', 'SUV', 'BIKE'];
   const locations = ['Colombo', 'Kandy', 'Galle', 'Negombo', 'Matara', 'Jaffna', 'Kurunegala', 'Anuradhapura', 'Badulla', 'Ratnapura'];
+
+  // Reverse geocoding to get address from coordinates
+  const getAddressFromCoordinates = async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'QuickWheels/1.0'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        console.error('Geocoding API error:', response.status, response.statusText);
+        return '';
+      }
+
+      const data = await response.json();
+
+      if (data && data.address) {
+        // Extract only relevant address parts (no country, postcode, or province)
+        const addressParts = [];
+
+        if (data.address.road) addressParts.push(data.address.road);
+        if (data.address.suburb) addressParts.push(data.address.suburb);
+        if (data.address.neighbourhood) addressParts.push(data.address.neighbourhood);
+        if (data.address.city) addressParts.push(data.address.city);
+        if (data.address.town) addressParts.push(data.address.town);
+        if (data.address.village) addressParts.push(data.address.village);
+
+        // Return the first 2-3 parts to keep it concise
+        const addressString = addressParts.slice(0, 3).join(', ');
+        console.log('Address found:', addressString);
+        return addressString;
+      }
+      console.log('No address data found in response');
+      return '';
+    } catch (error) {
+      console.error('Error getting address from coordinates:', error);
+      return '';
+    }
+  };
+
+  const handleLocationSelect = useCallback(async (lat: number, lng: number) => {
+    // Update coordinates
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
+
+    // Fetch and populate address
+    const address = await getAddressFromCoordinates(lat, lng);
+    if (address) {
+      setFormData(prev => ({
+        ...prev,
+        location: address
+      }));
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -83,42 +147,26 @@ const CreateAd = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('Form submitted with data:', formData);
-
     if (!isLoggedIn) {
-      console.log('User not logged in, redirecting...');
       navigate('/login');
       return;
     }
 
     // Validate form
     if (!formData.make || !formData.model || !formData.category || formData.images.length === 0 || formData.pricePerDay <= 0 || !formData.location || !formData.district) {
-      console.log('Validation failed:', {
-        make: formData.make,
-        model: formData.model,
-        category: formData.category,
-        imagesCount: formData.images.length,
-        pricePerDay: formData.pricePerDay,
-        location: formData.location,
-        district: formData.district
-      });
       alert('Please fill in all required fields');
       return;
     }
 
-    console.log('Validation passed, calling CreateVehicle...');
-
     CreateVehicle(
       formData,
       (response) => {
-        console.log('Vehicle created successfully:', response);
         if (response?.data?.vehicle?.id) {
           setNewAdId(response.data.vehicle.id);
           setSuccess(true);
         }
       },
       (errorMsg) => {
-        console.error('Error creating ad:', errorMsg);
         alert('Error creating ad. Check console for details.');
       }
     );
@@ -197,6 +245,8 @@ const CreateAd = () => {
                     pricePerDay: 0,
                     location: '',
                     district: '',
+                    latitude: null,
+                    longitude: null,
                     description: '',
                     features: [],
                     images: []
@@ -330,16 +380,24 @@ const CreateAd = () => {
                 </div>
 
                 <div className={styles.fieldGroup}>
-                  <label htmlFor="location">City</label>
+                  <label htmlFor="location">Location</label>
                   <input
                     type="text"
                     id="location"
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    placeholder="e.g., Colombo"
+                    placeholder="Select from map or enter address"
                     required
                   />
+                  <div className={styles.inlineLocationActions}>
+                    <LocationPicker
+                      compact
+                      onLocationSelect={handleLocationSelect}
+                      initialLat={formData.latitude ?? undefined}
+                      initialLng={formData.longitude ?? undefined}
+                    />
+                  </div>
                 </div>
 
                 <div className={styles.fieldGroup}>
@@ -418,6 +476,9 @@ const CreateAd = () => {
                   />
                 </div>
               </div>
+
+              {/* Map Location Section */}
+              {/* Removed separate Map Location Section — buttons now inline under Location input */}
 
               {/* Optional Details */}
               <div className={styles.optionalDetails}>

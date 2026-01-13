@@ -1,78 +1,144 @@
 /**
  * Quick Wheel Vehicle Rental App
  * Page: Profile
- * Description: User profile with booked rides and posted ads
+ * Description: User profile with profile image management
  * Tech: React + TypeScript + CSS Modules
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProfile } from '../../queries/user.queries';
+import { useUserService } from '../../services/UserService';
 import Alert from '../../components/Alert/Alert';
-import type { Vehicle, BookedRide } from '../../services/api';
 import styles from './ProfileModal.module.css';
 import profileIcon from '../../assets/profileAssets/profile.svg';
 import emailIcon from '../../assets/profileAssets/email.svg';
-import nicIcon from '../../assets/profileAssets/nic.svg';
 import locationIcon from '../../assets/profileAssets/location.svg';
 import mobileIcon from '../../assets/profileAssets/mobile number.svg';
-import profileIdIcon from '../../assets/profileAssets/profile id.svg';
 
 const Profile = () => {
   const navigate = useNavigate();
-
-  // Get profile data from API
-  const { data: profile, isLoading } = useProfile();
+  const {
+    profile,
+    isLoading,
+    UpdateProfileWithImage,
+    DeleteProfileImage,
+    isPending
+  } = useUserService();
 
   // Extract user data from profile response
   const user = profile?.data ? {
     id: profile.data.id || '',
     name: profile.data.fullName || profile.data.name || '',
     email: profile.data.email || '',
-    phone: profile.data.phone || ''
+    phone: profile.data.phone || '',
+    address: profile.data.address || '',
+    profileImage: profile.data.profileImage || null
   } : null;
 
-  const [successMessage, setSuccessMessage] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState<'success' | 'error'>('success');
+
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    nic: '',
+    name: '',
+    email: '',
     address: '',
-    mobile: user?.phone || '',
-    profileId: user?.id || ''
+    mobile: ''
   });
+
+  // Profile image states
+  const [newProfileImage, setNewProfileImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
 
   useEffect(() => {
     if (user) {
       setFormData({
         name: user.name,
         email: user.email,
-        nic: '',
-        address: '',
-        mobile: user.phone,
-        profileId: user.id
+        address: user.address,
+        mobile: user.phone
       });
     }
-  }, [user]);
+  }, [profile]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveProfile = async () => {
-    // TODO: Implement API call to save profile
-    console.log('Saving profile:', formData);
-    setSuccessMessage('Profile updated successfully!');
-    setTimeout(() => {
-      setSuccessMessage('');
-      navigate(-1); // Go back to previous page
-    }, 2000);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewProfileImage(file);
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
+  const removeNewImage = () => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setNewProfileImage(null);
+    setImagePreview(null);
+    // Reset file input
+    const fileInput = document.getElementById('profileImage') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
+  const handleDeleteExistingImage = () => {
+    if (!user?.profileImage) return;
+
+    setIsDeletingImage(true);
+
+    DeleteProfileImage(
+      () => {
+        setAlertMessage('Profile image deleted successfully!');
+        setAlertType('success');
+        setIsDeletingImage(false);
+      },
+      (error) => {
+        const errorMessage = error?.response?.data?.message || 'Failed to delete profile image';
+        setAlertMessage(errorMessage);
+        setAlertType('error');
+        setIsDeletingImage(false);
+      }
+    );
+  };
+
+  const handleSaveProfile = () => {
+    UpdateProfileWithImage(
+      {
+        fullName: formData.name,
+        phone: formData.mobile,
+        address: formData.address,
+        profileImage: newProfileImage || undefined
+      },
+      () => {
+        setAlertMessage('Profile updated successfully!');
+        setAlertType('success');
+
+        // Clear new image preview
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+        setNewProfileImage(null);
+        setImagePreview(null);
+      },
+      (error) => {
+        const errorMessage = error?.response?.data?.message || 'Failed to update profile';
+        setAlertMessage(errorMessage);
+        setAlertType('error');
+      }
+    );
   };
 
   const handleClose = () => {
-    navigate(-1); // Go back to previous page
+    navigate(-1);
   };
+
+  // Get current display image
+  const displayImage = imagePreview || user?.profileImage || null;
 
   if (isLoading) {
     return (
@@ -112,12 +178,12 @@ const Profile = () => {
     <div className={styles.profileModal}>
       <div className={styles.modalOverlay} onClick={handleClose}>
         <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-          {successMessage && (
+          {alertMessage && (
             <Alert
-              message={successMessage}
-              type="success"
-              duration={2000}
-              onClose={() => setSuccessMessage('')}
+              message={alertMessage}
+              type={alertType}
+              duration={5000}
+              onClose={() => setAlertMessage('')}
             />
           )}
 
@@ -129,6 +195,67 @@ const Profile = () => {
           </div>
 
           <div className={styles.modalBody}>
+            {/* Profile Image Section */}
+            <div className={styles.profileImageSection}>
+              <div className={styles.profileImageContainer}>
+                {displayImage ? (
+                  <div className={styles.imageWrapper}>
+                    <img
+                      src={displayImage}
+                      alt="Profile"
+                      className={styles.profileImage}
+                    />
+                    {isDeletingImage && (
+                      <div className={styles.imageLoadingOverlay}>
+                        <div className={styles.spinner}></div>
+                      </div>
+                    )}
+                    {/* Delete button for existing image */}
+                    {user?.profileImage && !imagePreview && (
+                      <button
+                        type="button"
+                        className={styles.removeImageButton}
+                        onClick={handleDeleteExistingImage}
+                        disabled={isDeletingImage}
+                        title="Delete profile image"
+                      >
+                        ×
+                      </button>
+                    )}
+                    {/* Cancel button for new image preview */}
+                    {imagePreview && (
+                      <button
+                        type="button"
+                        className={styles.removeImageButton}
+                        onClick={removeNewImage}
+                        title="Cancel new image"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className={styles.profileImagePlaceholder}>
+                    <span className={styles.placeholderIcon}>👤</span>
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.imageUploadSection}>
+                <label htmlFor="profileImage" className={styles.uploadLabel}>
+                  {displayImage ? 'Change Photo' : 'Upload Photo'}
+                </label>
+                <input
+                  type="file"
+                  id="profileImage"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className={styles.fileInput}
+                />
+              </div>
+            </div>
+
+            {/* Form Fields */}
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>
                 <span className={styles.labelIcon}>
@@ -160,23 +287,7 @@ const Profile = () => {
                 onChange={handleInputChange}
                 className={styles.formInput}
                 placeholder="Enter your email"
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>
-                <span className={styles.labelIcon}>
-                  <img src={nicIcon} alt="" className={styles.iconImg} />
-                </span>
-                NIC no:
-              </label>
-              <input
-                type="text"
-                name="nic"
-                value={formData.nic}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="Enter your NIC number"
+                disabled
               />
             </div>
 
@@ -216,8 +327,12 @@ const Profile = () => {
           </div>
 
           <div className={styles.modalFooter}>
-            <button className={styles.saveButton} onClick={handleSaveProfile}>
-              Save
+            <button
+              className={styles.saveButton}
+              onClick={handleSaveProfile}
+              disabled={isPending.updateProfile}
+            >
+              {isPending.updateProfile ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>

@@ -29,12 +29,26 @@ export const getProfile = async () => {
   return response.data;
 };
 
-// Update user profile
-export const updateProfile = async (profileData: {
+// Update user profile (with optional profile image)
+export const updateProfile = async (profileData: FormData | {
   FullName?: string;
   Phone?: string;
+  ProfileImage?: File;
 }) => {
-  const response = await httpAuth.patch('/auth/profile', profileData);
+  // Check if profileData is FormData
+  const isFormData = profileData instanceof FormData;
+  
+  const response = await httpAuth.patch('/auth/profile', profileData, {
+    headers: isFormData ? {
+      'Content-Type': 'multipart/form-data',
+    } : undefined,
+  });
+  return response.data;
+};
+
+// Delete profile image
+export const deleteProfileImage = async () => {
+  const response = await httpAuth.delete('/auth/profile/image');
   return response.data;
 };
 

@@ -38,10 +38,12 @@ const VehicleManagement = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: profile } = useProfile();
-    const { GetVehicleById, UpdateVehicle, DeleteVehicleImage, isPending: vehiclePending } = useVehicleService();
+    const { GetVehicleById, UpdateVehicle, DeleteVehicleImage, RemoveVehicle, UpdateVehicleStatus, isPending: vehiclePending } = useVehicleService();
 
     const [vehicle, setVehicle] = useState<VehicleData | null>(null);
     const [isLoadingVehicle, setIsLoadingVehicle] = useState(true);
+    const [showRemoveModal, setShowRemoveModal] = useState(false);
+    const [removeReason, setRemoveReason] = useState('');
 
     // Edit form state
     const [editFormData, setEditFormData] = useState({
@@ -110,7 +112,6 @@ const VehicleManagement = () => {
                 setIsLoadingVehicle(false);
             },
             (error) => {
-                console.error('Error fetching vehicle:', error);
                 setIsLoadingVehicle(false);
                 setAlertMessage('Failed to load vehicle details');
                 setAlertType('error');
@@ -168,8 +169,6 @@ const VehicleManagement = () => {
                         }));
                     },
                     (fetchError) => {
-                        console.error('Error refetching vehicle:', fetchError);
-                        // Fallback: remove from local state
                         setEditFormData(prev => ({
                             ...prev,
                             images: prev.images.filter((_, i) => i !== index)
@@ -178,7 +177,6 @@ const VehicleManagement = () => {
                 );
             },
             (error) => {
-                console.error('Failed to delete image:', error);
                 const errorMessage = error?.response?.data?.message || 'Failed to delete image';
                 setAlertMessage(errorMessage);
                 setAlertType('error');
@@ -215,13 +213,8 @@ const VehicleManagement = () => {
             location: editFormData.location,
             district: editFormData.district,
             description: editFormData.description,
-            newImages: editFormData.newImages  // Only send new images to add
+            newImages: editFormData.newImages
         };
-
-        console.log('Submitting update:', {
-            ...updateData,
-            newImagesCount: updateData.newImages.length
-        });
 
         UpdateVehicle(
             id,
@@ -259,8 +252,6 @@ const VehicleManagement = () => {
                         });
                     },
                     (fetchError) => {
-                        console.error('Error refetching vehicle:', fetchError);
-                        // Still update with response data as fallback
                         if (response?.data?.vehicle) {
                             const updatedVehicle = response.data.vehicle;
                             setVehicle(updatedVehicle);
@@ -284,7 +275,6 @@ const VehicleManagement = () => {
                 );
             },
             (error) => {
-                console.error('Update failed:', error);
                 const errorMessage = error?.response?.data?.message || 'Failed to update vehicle';
                 setAlertMessage(errorMessage);
                 setAlertType('error');
@@ -299,6 +289,55 @@ const VehicleManagement = () => {
             month: 'long',
             day: 'numeric'
         });
+    };
+
+    const handleRemoveVehicle = () => {
+        if (!id || !removeReason.trim()) {
+            setAlertMessage('Please provide a reason for removing the vehicle');
+            setAlertType('error');
+            return;
+        }
+
+        RemoveVehicle(
+            id,
+            removeReason.trim(),
+            () => {
+                setAlertMessage('Vehicle removed successfully');
+                setAlertType('success');
+                setShowRemoveModal(false);
+                setTimeout(() => {
+                    navigate('/my-vehicles');
+                });
+            },
+            (error) => {
+                const errorMessage = error?.response?.data?.message || 'Failed to remove vehicle';
+                setAlertMessage(errorMessage);
+                setAlertType('error');
+            }
+        );
+    };
+
+    const handleMaintenanceMode = () => {
+        if (!id || !vehicle) return;
+
+        const newStatus = vehicle.status === 'MAINTENANCE' ? 'AVAILABLE' : 'MAINTENANCE';
+
+        UpdateVehicleStatus(
+            id,
+            newStatus,
+            () => {
+                setAlertMessage(newStatus === 'MAINTENANCE'
+                    ? 'Vehicle set to maintenance mode'
+                    : 'Vehicle is now available');
+                setAlertType('success');
+                setVehicle(prev => prev ? { ...prev, status: newStatus } : null);
+            },
+            (error) => {
+                const errorMessage = error?.response?.data?.message || 'Failed to update vehicle status';
+                setAlertMessage(errorMessage);
+                setAlertType('error');
+            }
+        );
     };
 
     if (!isLoggedIn) {
@@ -597,9 +636,76 @@ const VehicleManagement = () => {
                                     {vehiclePending.updateVehicle ? 'Saving...' : 'SAVE CHANGES'}
                                 </button>
                             </div>
+
+                            {/* Vehicle Management Actions */}
+                            <div className={styles.managementActions}>
+                                <button
+                                    type="button"
+                                    className={`${styles.maintenanceButton} ${vehicle?.status === 'MAINTENANCE' ? styles.maintenanceActive : ''}`}
+                                    onClick={handleMaintenanceMode}
+                                    disabled={vehiclePending.updateVehicleStatus}
+                                >
+                                    {vehiclePending.updateVehicleStatus
+                                        ? 'Updating...'
+                                        : vehicle?.status === 'MAINTENANCE'
+                                            ? 'Exit Maintenance Mode'
+                                            : 'Set Maintenance Mode'}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.removeVehicleButton}
+                                    onClick={() => setShowRemoveModal(true)}
+                                >
+                                    Remove Vehicle
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
+
+                {/* Remove Vehicle Modal */}
+                {showRemoveModal && (
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modal}>
+                            <h3 className={styles.modalTitle}>Remove Vehicle</h3>
+                            <p className={styles.modalText}>
+                                Are you sure you want to remove this vehicle? This action cannot be undone.
+                                All images will be permanently deleted.
+                            </p>
+                            <div className={styles.modalInput}>
+                                <label htmlFor="removeReason">Reason for removal</label>
+                                <textarea
+                                    id="removeReason"
+                                    value={removeReason}
+                                    onChange={(e) => setRemoveReason(e.target.value)}
+                                    placeholder="Please provide a reason..."
+                                    rows={3}
+                                    required
+                                />
+                            </div>
+                            <div className={styles.modalActions}>
+                                <button
+                                    type="button"
+                                    className={styles.cancelButton}
+                                    onClick={() => {
+                                        setShowRemoveModal(false);
+                                        setRemoveReason('');
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.confirmRemoveButton}
+                                    onClick={handleRemoveVehicle}
+                                    disabled={!removeReason.trim() || vehiclePending.removeVehicle}
+                                >
+                                    {vehiclePending.removeVehicle ? 'Removing...' : 'Remove Vehicle'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

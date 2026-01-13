@@ -14,6 +14,7 @@ import CreateAd from '../pages/CreateAd/CreateAd';
 import Login from '../pages/Login/Login';
 import CreateAccount from '../pages/CreateAccount/CreateAccount';
 import ForgotPassword from '../pages/ForgotPassword/ForgotPassword';
+import EmailVerified from '../pages/EmailVerified/EmailVerified';
 import Profile from '../pages/Profile/Profile';
 import MyRides from '../pages/MyRides/MyRides';
 import MyVehicles from '../pages/MyVehicles/MyVehicles';
@@ -53,6 +54,10 @@ export const router = createBrowserRouter([
       {
         path: 'forgot-password',
         element: <ForgotPassword />
+      },
+      {
+        path: 'email-verified',
+        element: <EmailVerified />
       },
       {
         path: 'profile',

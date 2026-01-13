@@ -6,6 +6,7 @@ import {
   login,
   getProfile,
   updateProfile,
+  deleteProfileImage,
   refreshToken,
   logout,
   forgotPassword,
@@ -51,6 +52,18 @@ export const useUpdateProfile = () => {
   
   return useMutation({
     mutationFn: updateProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    },
+  });
+};
+
+// Mutation: Delete profile image
+export const useDeleteProfileImage = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: deleteProfileImage,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },

@@ -28,11 +28,9 @@ const Navbar = () => {
       () => {
         setIsProfileDropdownOpen(false);
         navigate('/');
-        window.location.reload(); // Reload to clear profile cache
+        window.location.reload();
       },
       (error) => {
-        console.error('Logout error:', error);
-        // Even on error, navigate to home
         setIsProfileDropdownOpen(false);
         navigate('/');
         window.location.reload();
@@ -96,16 +94,25 @@ const Navbar = () => {
                 aria-label="User menu"
               >
                 <span className={styles.profileIcon} aria-hidden="true">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    role="img"
-                  >
-                    <circle cx="12" cy="7" r="4" fill="white" />
-                    <path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="white" />
-                  </svg>
+                  {profile?.data?.profileImage ? (
+                    <img
+                      src={profile.data.profileImage}
+                      alt={`${user?.name || 'User'}'s avatar`}
+                      className={styles.avatarImg}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  ) : (
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      role="img"
+                    >
+                      <circle cx="12" cy="7" r="4" fill="white" />
+                      <path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="white" />
+                    </svg>
+                  )}
                 </span>
                 <span className={styles.profileName}>{user?.name}</span>
                 <span className={styles.dropdownArrow}>

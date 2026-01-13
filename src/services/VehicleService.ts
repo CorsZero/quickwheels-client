@@ -155,6 +155,8 @@ export const useVehicleService = (enableMyListings: boolean = false) => {
             pricePerDay: number;
             location: string;
             district: string;
+            latitude: number | null;
+            longitude: number | null;
             description: string;
             features: string[];
             images: File[];
@@ -175,6 +177,14 @@ export const useVehicleService = (enableMyListings: boolean = false) => {
         formData.append('location', vehicleData.location);
         formData.append('district', vehicleData.district);
         formData.append('description', vehicleData.description);
+        
+        // Append latitude and longitude if available
+        if (vehicleData.latitude !== null) {
+            formData.append('latitude', vehicleData.latitude.toString());
+        }
+        if (vehicleData.longitude !== null) {
+            formData.append('longitude', vehicleData.longitude.toString());
+        }
         
         // Append features array
         vehicleData.features.forEach((feature) => {

@@ -32,8 +32,6 @@ const VehicleList = ({ title = "Available Vehicles", showPagination = false, lim
 
   const handlePageChange = async (page: number) => {
     if (showPagination && page !== currentPage) {
-      // Pagination can be implemented with VehicleService later
-      console.log('Navigate to page:', page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
