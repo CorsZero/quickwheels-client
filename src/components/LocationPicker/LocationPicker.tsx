@@ -77,33 +77,67 @@ const LocationPicker = ({ onLocationSelect, initialLat, initialLng, compact }: L
         }
     }, [position, onLocationSelect]);
 
-    // Get current location
-    const getCurrentLocation = () => {
+    // Get current location using IP-based geolocation (works on HTTP)
+    const getCurrentLocation = async () => {
         setIsLoadingLocation(true);
 
-        if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser');
+        try {
+            // Try browser geolocation first (works on HTTPS and localhost)
+            if (navigator.geolocation && window.isSecureContext) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const newPos: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+                        setPosition(newPos);
+                        setMapCenter(newPos);
+                        setIsLoadingLocation(false);
+                    },
+                    async () => {
+                        // If browser geolocation fails, try IP-based geolocation
+                        await getLocationByIP();
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                // If not secure context, use IP-based geolocation
+                await getLocationByIP();
+            }
+        } catch (error) {
+            // Final fallback to default location
+            const defaultPos: [number, number] = [defaultLat, defaultLng];
+            setPosition(defaultPos);
+            setMapCenter(defaultPos);
             setIsLoadingLocation(false);
-            return;
         }
+    };
 
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const newPos: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+    // Get location based on IP address (works on HTTP)
+    const getLocationByIP = async () => {
+        try {
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+
+            if (data.latitude && data.longitude) {
+                const newPos: [number, number] = [data.latitude, data.longitude];
                 setPosition(newPos);
                 setMapCenter(newPos);
-                setIsLoadingLocation(false);
-            },
-            (error) => {
-                alert('Unable to get your location. Please select manually on the map.');
-                setIsLoadingLocation(false);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
+            } else {
+                // Fallback to default location
+                const defaultPos: [number, number] = [defaultLat, defaultLng];
+                setPosition(defaultPos);
+                setMapCenter(defaultPos);
             }
-        );
+        } catch (error) {
+            // Fallback to default location
+            const defaultPos: [number, number] = [defaultLat, defaultLng];
+            setPosition(defaultPos);
+            setMapCenter(defaultPos);
+        } finally {
+            setIsLoadingLocation(false);
+        }
     };
 
     const handlePositionChange = (newPos: [number, number]) => {
