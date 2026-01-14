@@ -45,11 +45,7 @@ const createResponseErrorInterceptor = (client: AxiosInstance, _serviceName: str
 
     try {
       // Refresh uses HttpOnly cookies - no token in body
-      await axios.post(
-        '/api/auth/refresh',
-        {},
-        { withCredentials: true }
-      );
+      await httpAuth.post('/auth/refresh', {});
 
       processQueue(null);
       isRefreshing = false;
@@ -93,19 +89,32 @@ const setupInterceptors = (client: AxiosInstance, serviceName: string) => {
   );
 };
 
+// Get API URLs from environment variables with fallback to localhost
+const AUTH_API_URL = import.meta.env.VITE_AUTH_API_BASE_URL;
+const VEHICLE_API_URL = import.meta.env.VITE_VEHICLE_API_BASE_URL;
+const BOOKING_API_URL = import.meta.env.VITE_BOOKING_API_BASE_URL;
+
+// Log configuration in development
+if (import.meta.env.DEV) {
+  console.log('🔧 API Configuration:');
+  console.log('  Auth Service:', AUTH_API_URL);
+  console.log('  Vehicle Service:', VEHICLE_API_URL);
+  console.log('  Booking Service:', BOOKING_API_URL);
+}
+
 // Create HTTP clients with credentials (cookies sent automatically)
 export const httpVehicle = axios.create({
-  baseURL: '/api',
+  baseURL: VEHICLE_API_URL,
   withCredentials: true, // Send/receive HttpOnly cookies
 });
 
 export const httpBooking = axios.create({
-  baseURL: '/api',
+  baseURL: BOOKING_API_URL,
   withCredentials: true,
 });
 
 export const httpAuth = axios.create({
-  baseURL: '/api',
+  baseURL: AUTH_API_URL,
   withCredentials: true,
 });
 
