@@ -16,16 +16,19 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM node:20-alpine
 
-# Copy SPA nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /app
+
+# Install serve globally - lightweight static file server
+RUN npm install -g serve
 
 # Copy built assets from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist ./dist
 
 # Expose port 80
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the static files on port 80
+# -s flag enables SPA mode (redirects all requests to index.html)
+CMD ["serve", "-s", "dist", "-l", "80"]
