@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   register,
   login,
+  googleLogin,
   getProfile,
   updateProfile,
   deleteProfileImage,
@@ -39,6 +40,19 @@ export const useLogin = () => {
   
   return useMutation({
     mutationFn: login,
+    onSuccess: () => {
+      // Cookies are set by backend - just refetch profile
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    },
+  });
+};
+
+// Mutation: Google Sign-In
+export const useGoogleLogin = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: googleLogin,
     onSuccess: () => {
       // Cookies are set by backend - just refetch profile
       queryClient.invalidateQueries({ queryKey: ['profile'] });
