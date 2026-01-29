@@ -90,9 +90,10 @@ const setupInterceptors = (client: AxiosInstance, serviceName: string) => {
 };
 
 // Get API URLs from environment variables with fallback to localhost
-const AUTH_API_URL = "/api";
-const VEHICLE_API_URL = "/api";
-const BOOKING_API_URL = "/api";
+
+const AUTH_API_URL = import.meta.env.VITE_AUTH_API_BASE_URL;
+const VEHICLE_API_URL = import.meta.env.VITE_VEHICLE_API_BASE_URL;
+const BOOKING_API_URL = import.meta.env.VITE_BOOKING_API_BASE_URL;
 
 // Log configuration in development
 if (import.meta.env.DEV) {
