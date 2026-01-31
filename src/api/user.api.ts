@@ -23,6 +23,14 @@ export const login = async (credentials: {
   return response.data;
 };
 
+// Google Sign-In - tokens are set as HttpOnly cookies by backend
+export const googleLogin = async (googleIdToken: string) => {
+  const response = await httpAuth.post('/auth/googlesignin', {
+    googleIdToken
+  });
+  return response.data;
+};
+
 // Get current user profile
 export const getProfile = async () => {
   const response = await httpAuth.get('/auth/profile');
